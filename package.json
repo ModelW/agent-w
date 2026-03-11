@@ -1,6 +1,10 @@
 {
     "name": "@model-w/agent-w",
     "version": "0.2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ModelW/agent-w.git"
+    },
     "description": "Agent W - Tools and skills for Model W projects with coding agents",
     "bin": {
         "agent-w": "bin/cli.js"
