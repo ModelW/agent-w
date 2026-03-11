@@ -31,6 +31,25 @@ ecosystem.
 - **Quality by Default:** Enforces robust automated testing and consistent
   linting rules.
 
+## Project Status
+
+**⚠️ Alpha Quality:** Agent W is currently in early alpha. It is under active
+development, and its APIs, skills, and CLI commands are subject to breaking
+changes. Use with caution in production environments.
+
+### Goals for Version 1.0
+
+We aim to reach version 1.0 once the following milestones are achieved:
+
+- **Strong Internal Adoption:** Widespread use of the agent across projects
+  within the company.
+- **Front-End & Figma Integration:** Definitive AI-assisted workflows for
+  translating Figma designs into high-quality front-end code.
+- **Boosted Maintenance:** Significant automation of common project management
+  and maintenance tasks.
+- **Agentic Upgrades:** Model W version upgrades distributed and executed
+  reliably through agentic skills.
+
 ## Features
 
 - **Model W Meta-Skill:** Installs a philosophy and strategy skill (`model-w`)

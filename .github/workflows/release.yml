@@ -12,6 +12,7 @@ on:
 permissions:
     contents: write
     id-token: write
+    issues: read
 
 jobs:
     ai-release:
@@ -38,6 +39,7 @@ jobs:
             - name: Run AI Release Agent
               env:
                   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   LAST_TAG="${{ steps.git-info.outputs.last_tag }}"
                   if [ -z "$LAST_TAG" ]; then
@@ -51,7 +53,7 @@ jobs:
                     exit 0
                   fi
 
-                  PROMPT="Please act as the agent-w-maintainer. Here are the commits since the last release:\n$COMMITS\n\nAnalyze these commits, decide the next semantic version bump, update package.json, update CHANGELOG.md, and format the modified files. ${{ github.event.inputs.instructions }}"
+                  PROMPT="Please act as the agent-w-maintainer. Here are the commits since the last release:\n$COMMITS\n\nAnalyze these commits, decide the next semantic version bump, update package.json, update CHANGELOG.md, and format the modified files. You are running in CI/CD and are pre-approved to modify these files. Do NOT commit the changes, the pipeline will handle the commit step. ${{ github.event.inputs.instructions }}"
 
                   gemini "$PROMPT" --headless --approval-mode=yolo
 
