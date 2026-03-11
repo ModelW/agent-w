@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-03-11
+
+### Security & Refactoring
+
+- Refactor Phase 1 to use gh cli and direct Gemini API call for security
+- Fix Phase 1 prompt injection and prevent unauthorized tool use
+
 ## [0.1.0] - 2026-03-11
 
 ### Features
