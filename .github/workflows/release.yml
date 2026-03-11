@@ -39,15 +39,15 @@ jobs:
                   # Add the GitHub MCP Server
                   gemini mcp add github npx -y @modelcontextprotocol/server-github
 
-                  PROMPT="You are a strict project maturity analyzer. Use your GitHub tools to analyze the repository issues. Determine the project's maturity level based on these rules:\n1. If there are >= 100 total issues AND all currently open issues are minor/unimportant, the project is ready for 1.0.0 ('MATURITY_1_0_0_READY').\n2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.\n3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.\n4. If it's still early, output 'MATURITY_ALPHA'.\n\nYou MUST respond with EXACTLY ONE of the following enum values and absolutely nothing else: 'MATURITY_ALPHA', 'MATURITY_BETA', 'MATURITY_STABLE', or 'MATURITY_1_0_0_READY'."
+                  PROMPT="You are a strict project maturity analyzer. Use your GitHub tools to analyze the repository issues. Determine the project's maturity level based on these rules:\n1. If there are >= 100 total issues AND all currently open issues are minor/unimportant, the project is ready for 1.0.0 ('MATURITY_1_0_0_READY').\n2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.\n3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.\n4. If it's still early, output 'MATURITY_ALPHA'.\n\nCRITICAL: Do NOT use run_shell_command or the generalist agent. Use ONLY the mcp_github_* tools.\n\nYou MUST respond by wrapping exactly one of the enum values in <result> tags (e.g., <result>YOUR_ENUM_HERE</result>) and absolutely nothing else."
 
                   MATURITY_RESULT=$(gemini --prompt "$PROMPT" --approval-mode=auto_edit)
 
-                  if echo "$MATURITY_RESULT" | grep -E -q "(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)"; then
-                      MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)" | head -n 1)
+                  if echo "$MATURITY_RESULT" | grep -E -q "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>"; then
+                      MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>" | sed -e 's/<result>//' -e 's/<\/result>//' | tail -n 1)
                       echo "maturity_level=$MATCH" >> $GITHUB_OUTPUT
                   else
-                      echo "Error: Invalid maturity result. Possible prompt injection."
+                      echo "Error: Invalid maturity result. Possible prompt injection or agent failure."
                       echo "Output: $MATURITY_RESULT"
                       exit 1
                   fi

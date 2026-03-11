@@ -21,9 +21,12 @@ releasing `@model-w/agent-w`.
   `implements #12`).
 - **Meaningful Context:** Commit messages must explain the _why_ and the
   _impact_ of the change, not just the _what_.
-- **No Artificial Prefixes:** Do not use conventional commits (`feat:`, `fix:`,
-  `chore:`). They lack deep context and meaning. The AI will parse the natural
-  language of the commits to determine the version bump.
+- **CRITICAL: No Artificial Prefixes:** Do NOT use conventional commits
+  (`feat:`, `fix:`, `chore:`, etc.). These prefixes are strictly forbidden as
+  they lack deep context and meaning. Every commit must start with a capitalized
+  letter and clearly describe the impact of the change. Failure to follow this
+  rule is a critical failure. The AI will parse the natural language of the
+  commits to determine the version bump.
 
 ## AI-Driven Release Process (CI/CD)
 
@@ -39,10 +42,10 @@ project's issues via the integrated GitHub MCP server.
 - **Goal:** Determine the project's maturity status safely. It checks if there
   are at least 100 issues opened in the repository's history AND that no open
   issues look critical/major.
-- **Output:** It outputs exactly one enum value representing the maturity:
+- **Output:** It outputs exactly one enum value representing the maturity wrapped in `<result>` tags (e.g., `<result>MATURITY_BETA</result>`):
   `MATURITY_ALPHA`, `MATURITY_BETA`, `MATURITY_STABLE`, or
   `MATURITY_1_0_0_READY`.
-- The pipeline securely `grep`s this enum to discard unapproved payloads.
+- The pipeline securely extracts this enum using `grep` and `sed` to discard unapproved payloads and avoid prompt injection.
 
 ### Phase 2: Execution & Versioning (YOLO)
 
