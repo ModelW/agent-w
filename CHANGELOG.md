@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-03-11
+
+### Features
+
+- Auto-detect and use latest Gemini flash model for Phase 1
+- Make model detection and LLM output explicit in Phase 1 logs
+
 ## [0.1.1] - 2026-03-11
 
 ### Security & Refactoring
