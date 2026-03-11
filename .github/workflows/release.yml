@@ -1,0 +1,77 @@
+name: AI Release and Publish
+
+on:
+    workflow_dispatch:
+        inputs:
+            instructions:
+                description:
+                    "Optional extra instructions for the AI release agent"
+                required: false
+                type: string
+
+permissions:
+    contents: write
+    id-token: write
+
+jobs:
+    ai-release:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20.x"
+                  registry-url: "https://registry.npmjs.org"
+
+            - name: Install Gemini CLI
+              run: npm install -g @google/gemini-cli
+
+            - name: Determine Last Tag
+              id: git-info
+              run: |
+                  LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                  echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+
+            - name: Run AI Release Agent
+              env:
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+              run: |
+                  LAST_TAG="${{ steps.git-info.outputs.last_tag }}"
+                  if [ -z "$LAST_TAG" ]; then
+                    COMMITS=$(git log --oneline)
+                  else
+                    COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
+                  fi
+
+                  if [ -z "$COMMITS" ]; then
+                    echo "No commits since last release. Exiting."
+                    exit 0
+                  fi
+
+                  PROMPT="Please act as the agent-w-maintainer. Here are the commits since the last release:\n$COMMITS\n\nAnalyze these commits, decide the next semantic version bump, update package.json, update CHANGELOG.md, and format the modified files. ${{ github.event.inputs.instructions }}"
+
+                  gemini "$PROMPT" --headless
+
+            - name: Commit, Tag, and Push
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  if git diff --quiet package.json; then
+                    echo "No version change detected in package.json. Skipping publish."
+                    exit 0
+                  fi
+
+                  NEW_VERSION=$(node -p "require('./package.json').version")
+                  git add package.json CHANGELOG.md
+                  git commit -m "Release v$NEW_VERSION"
+                  git tag "v$NEW_VERSION"
+                  git push origin main --tags
+
+            - name: Publish to NPM
+              run: npm publish --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
