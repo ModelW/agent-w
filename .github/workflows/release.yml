@@ -41,7 +41,7 @@ jobs:
 
                   PROMPT="You are a strict project maturity analyzer. Use your GitHub tools to analyze the repository issues. Determine the project's maturity level based on these rules:\n1. If there are >= 100 total issues AND all currently open issues are minor/unimportant, the project is ready for 1.0.0 ('MATURITY_1_0_0_READY').\n2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.\n3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.\n4. If it's still early, output 'MATURITY_ALPHA'.\n\nYou MUST respond with EXACTLY ONE of the following enum values and absolutely nothing else: 'MATURITY_ALPHA', 'MATURITY_BETA', 'MATURITY_STABLE', or 'MATURITY_1_0_0_READY'."
 
-                  MATURITY_RESULT=$(gemini "$PROMPT" --headless --approval-mode=auto)
+                  MATURITY_RESULT=$(gemini --prompt "$PROMPT" --approval-mode=auto)
 
                   if echo "$MATURITY_RESULT" | grep -E -q "(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)"; then
                       MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)" | head -n 1)
@@ -72,7 +72,7 @@ jobs:
 
                   PROMPT="Please act as the agent-w-maintainer. The project maturity has been securely determined as: $MATURITY_LEVEL. Here are the commits since the last release:\n$COMMITS\n\nBased on the semantic meaning of these commits AND the maturity level, decide the next version bump. If the maturity is MATURITY_1_0_0_READY and the current version is < 1.0.0, you must bump to 1.0.0. Otherwise, perform a standard patch/minor/major bump.\n\nApply the version bump to package.json. Then, update CHANGELOG.md. Finally, update the 'Project Status' section in README.md to accurately reflect the current maturity ($MATURITY_LEVEL). You are running in CI/CD and are pre-approved to modify these files. Do NOT commit the changes, the pipeline will handle the commit step. ${{ github.event.inputs.instructions }}"
 
-                  gemini "$PROMPT" --headless --approval-mode=yolo
+                  gemini --prompt "$PROMPT" --approval-mode=yolo
 
             - name: Commit, Tag, and Push
               run: |
