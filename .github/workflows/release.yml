@@ -77,7 +77,9 @@ jobs:
                       });
                       
                       const latestModel = flashModels[0] || 'gemini-2.5-flash';
-                      console.error(`Using model: ${latestModel}`);
+                      console.error("======================================");
+                      console.error(`=> Auto-detected latest flash model: ${latestModel}`);
+                      console.error("======================================");
 
                       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${latestModel}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
                           method: 'POST',
@@ -88,10 +90,14 @@ jobs:
                       });
                       const data = await res.json();
                       if (data.error) {
-                          console.error(data.error.message || JSON.stringify(data.error));
+                          console.error("API Error:", data.error.message || JSON.stringify(data.error));
                           process.exit(1);
                       }
                       const text = data.candidates[0].content.parts[0].text;
+                      console.error("======================================");
+                      console.error("=> Raw LLM Output:");
+                      console.error(text);
+                      console.error("======================================");
                       console.log(text);
                   }
                   run();
