@@ -12,6 +12,9 @@ releasing `@model-w/agent-w`.
 
 ## Commit Strategy
 
+- **Always get human approval:** You must always get explicit approval from the
+  user before running `git commit`. Never commit code autonomously without
+  asking first.
 - **Reference Issues:** Every commit MUST reference an issue (e.g., `fixes #42`,
   `implements #12`).
 - **Meaningful Context:** Commit messages must explain the _why_ and the
