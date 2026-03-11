@@ -25,3 +25,9 @@ pnpm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Temporary release files
+issues.json
+analyze.js
+release_notes.md
+release_body.md

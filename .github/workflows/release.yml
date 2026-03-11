@@ -106,6 +106,7 @@ jobs:
                   EOF
                   
                   MATURITY_RESULT=$(node analyze.js)
+                  rm analyze.js issues.json
                   
                   if echo "$MATURITY_RESULT" | grep -E -q "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>"; then
                       MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>" | sed -e 's/<result>//' -e 's/<\/result>//' | tail -n 1)
@@ -163,6 +164,7 @@ jobs:
                   else
                     gh release create "v$NEW_VERSION" --target main -t "Release v$NEW_VERSION" --generate-notes
                   fi
+                  rm -f release_notes.md release_body.md
 
             - name: Publish to NPM
               run: npm publish
