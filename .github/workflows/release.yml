@@ -33,16 +33,47 @@ jobs:
             - name: Phase 1 - Project Maturity Analysis
               id: maturity-analysis
               env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-                  GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  # Add the GitHub MCP Server
-                  gemini mcp add github npx -y @modelcontextprotocol/server-github
+                  # Fetch issues securely using gh cli
+                  gh issue list --state all --json title,state,labels --limit 1000 > issues.json
+                  
+                  cat << 'EOF' > analyze.js
+                  const fs = require('fs');
+                  const issues = JSON.parse(fs.readFileSync('issues.json', 'utf8'));
+                  const prompt = `You are a strict project maturity analyzer. I will provide a JSON list of the repository's issues. Determine the project's maturity level based on these rules:
+                  1. If there are >= 100 total issues AND all currently open issues are minor/unimportant, the project is ready for 1.0.0 ('MATURITY_1_0_0_READY').
+                  2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.
+                  3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.
+                  4. If it's still early, output 'MATURITY_ALPHA'.
+                  
+                  You MUST respond by wrapping exactly one of the enum values in <result> tags (e.g., <result>MATURITY_ALPHA</result>) and absolutely nothing else.
+                  
+                  Issues JSON:
+                  ${JSON.stringify(issues)}`;
 
-                  PROMPT="You are a strict project maturity analyzer. Use your GitHub tools to analyze the repository issues. Determine the project's maturity level based on these rules:\n1. If there are >= 100 total issues AND all currently open issues are minor/unimportant, the project is ready for 1.0.0 ('MATURITY_1_0_0_READY').\n2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.\n3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.\n4. If it's still early, output 'MATURITY_ALPHA'.\n\nCRITICAL: Do NOT use run_shell_command or the generalist agent. Use ONLY the mcp_github_* tools.\n\nYou MUST respond by wrapping exactly one of the enum values in <result> tags (e.g., <result>YOUR_ENUM_HERE</result>) and absolutely nothing else."
-
-                  MATURITY_RESULT=$(gemini --prompt "$PROMPT" --approval-mode=auto_edit)
-
+                  async function run() {
+                      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              contents: [{ parts: [{ text: prompt }] }]
+                          })
+                      });
+                      const data = await res.json();
+                      if (data.error) {
+                          console.error(data.error.message || JSON.stringify(data.error));
+                          process.exit(1);
+                      }
+                      const text = data.candidates[0].content.parts[0].text;
+                      console.log(text);
+                  }
+                  run();
+                  EOF
+                  
+                  MATURITY_RESULT=$(node analyze.js)
+                  
                   if echo "$MATURITY_RESULT" | grep -E -q "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>"; then
                       MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>" | sed -e 's/<result>//' -e 's/<\/result>//' | tail -n 1)
                       echo "maturity_level=$MATCH" >> $GITHUB_OUTPUT
