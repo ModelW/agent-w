@@ -1,0 +1,23 @@
+{
+    "name": "@model-w/agent-w",
+    "version": "1.0.0",
+    "description": "Agent W - Tools and skills for Model W projects with coding agents",
+    "bin": {
+        "agent-w": "bin/cli.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "gemini",
+        "cli",
+        "extension",
+        "model-w",
+        "agent"
+    ],
+    "author": "with-madrid.com",
+    "license": "WTFPL",
+    "devDependencies": {
+        "prettier": "^3.8.1"
+    }
+}
