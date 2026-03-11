@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-03-11
+
+### CI/CD & Publishing
+
+- Re-enable NPM token publishing (provenance not supported for private repos)
+- Simplify NPM publish workflow
+
 ## [0.3.0] - 2026-03-11
 
 ### Features

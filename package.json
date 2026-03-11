@@ -1,6 +1,6 @@
 {
     "name": "@model-w/agent-w",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/ModelW/agent-w.git"
