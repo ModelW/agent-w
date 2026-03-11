@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-03-11
+
+### Features
+
+- Automate GitHub Release creation with AI-generated notes
+
+### CI/CD & Security
+
+- Switch to NPM trusted publishing (provenance)
+- Force non-interactive mode in CI/CD via CI=true environment variable
+
 ## [0.2.0] - 2026-03-11
 
 ### Features
