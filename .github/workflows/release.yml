@@ -54,7 +54,32 @@ jobs:
                   ${JSON.stringify(issues)}`;
 
                   async function run() {
-                      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+                      // Fetch available models
+                      const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+                      const modelsData = await modelsRes.json();
+                      
+                      if (!modelsData.models) {
+                          console.error("Failed to fetch models");
+                          process.exit(1);
+                      }
+
+                      // Find the latest flash model
+                      const flashModels = modelsData.models
+                          .filter(m => m.name.includes('flash') && m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('vision') && !m.name.includes('lite') && !m.name.includes('audio') && !m.name.includes('image'))
+                          .map(m => m.name.replace('models/', ''));
+                          
+                      flashModels.sort((a, b) => {
+                          const matchA = a.match(/gemini-(\d+\.?\d*)/);
+                          const matchB = b.match(/gemini-(\d+\.?\d*)/);
+                          const verA = matchA ? parseFloat(matchA[1]) : 0;
+                          const verB = matchB ? parseFloat(matchB[1]) : 0;
+                          return verB - verA; // Descending order
+                      });
+                      
+                      const latestModel = flashModels[0] || 'gemini-2.5-flash';
+                      console.error(`Using model: ${latestModel}`);
+
+                      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${latestModel}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
