@@ -1,6 +1,6 @@
 {
     "name": "@model-w/agent-w",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Agent W - Tools and skills for Model W projects with coding agents",
     "bin": {
         "agent-w": "bin/cli.js"

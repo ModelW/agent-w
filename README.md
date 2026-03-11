@@ -33,9 +33,9 @@ ecosystem.
 
 ## Project Status
 
-**⚠️ Alpha Quality:** Agent W is currently in early alpha. It is under active
-development, and its APIs, skills, and CLI commands are subject to breaking
-changes. Use with caution in production environments.
+**⚠️ Alpha Quality (MATURITY_ALPHA):** Agent W is currently in alpha. It is
+under active development, and its APIs, skills, and CLI commands are subject to
+breaking changes. Use with caution in production environments.
 
 ### Goals for Version 1.0
 
