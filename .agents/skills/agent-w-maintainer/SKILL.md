@@ -42,10 +42,12 @@ project's issues via the integrated GitHub MCP server.
 - **Goal:** Determine the project's maturity status safely. It checks if there
   are at least 100 issues opened in the repository's history AND that no open
   issues look critical/major.
-- **Output:** It outputs exactly one enum value representing the maturity wrapped in `<result>` tags (e.g., `<result>MATURITY_BETA</result>`):
+- **Output:** It outputs exactly one enum value representing the maturity
+  wrapped in `<result>` tags (e.g., `<result>MATURITY_BETA</result>`):
   `MATURITY_ALPHA`, `MATURITY_BETA`, `MATURITY_STABLE`, or
   `MATURITY_1_0_0_READY`.
-- The pipeline securely extracts this enum using `grep` and `sed` to discard unapproved payloads and avoid prompt injection.
+- The pipeline securely extracts this enum using `grep` and `sed` to discard
+  unapproved payloads and avoid prompt injection.
 
 ### Phase 2: Execution & Versioning (YOLO)
 
@@ -65,7 +67,14 @@ you must:
 4. **Update Docs:** Update the "Project Status" section in the `README.md` to
    reflect the specific `$MATURITY_LEVEL` (e.g., changing the warning from alpha
    to beta, or removing the warning if stable/1.0.0).
-5. **Generate Changelog & Release Notes:** Prepend a new release section to `CHANGELOG.md`. Summarize the technical and business impact of the changes, categorize them logically, and link to the referenced issues. Additionally, create a `release_notes.md` file containing an engaging, short title for this release on the first line, a blank line, and then the detailed release description (this will be used for the GitHub Release).
-6. **Format:** Ensure `package.json`, `README.md`, and `CHANGELOG.md` are formatted properly (`npx prettier --write .`).
+5. **Generate Changelog & Release Notes:** Prepend a new release section to
+   `CHANGELOG.md`. Summarize the technical and business impact of the changes,
+   categorize them logically, and link to the referenced issues. Additionally,
+   create a `release_notes.md` file containing the release name on the first
+   line in the format `v<Version> — <Title>` (where `<Title>` is an engaging,
+   short, and possibly humorous headline), a blank line, and then the detailed
+   release description (this will be used for the GitHub Release).
+6. **Format:** Ensure `package.json`, `README.md`, and `CHANGELOG.md` are
+   formatted properly (`npx prettier --write .`).
 7. **Terminate:** Exit successfully so the pipeline can safely commit the files,
    tag the release, and publish to NPM.
