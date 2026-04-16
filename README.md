@@ -2,8 +2,8 @@
 
 <img src="agent-w.png" alt="Agent W" width="300">
 
-Agent W is a Gemini CLI extension that provides tools and skills required to
-facilitate working on Model W projects with coding agents.
+Agent W is a Gemini CLI extension and OpenCode plugin that provides tools and
+skills required to facilitate working on Model W projects with coding agents.
 
 ## Philosophy
 
@@ -52,10 +52,13 @@ We aim to reach version 1.0 once the following milestones are achieved:
 
 ## Features
 
-- **Model W Meta Bootstrap:** Installs a bootstrapping skill
+- **Model W Meta Bootstrap:** Provides a bootstrapping skill
   (`model-w-bootstrap`) that guides the AI agent to create specialized local
   skills for the project's structure, dependencies, testing, and update
   processes.
+- **De Facto Skills (OpenCode):** When used as an OpenCode plugin, Agent W
+  skills are automatically available to the agent without any project-level
+  installation.
 - **CLI Tool:** Includes a command-line interface (`agent-w`) for managing the
   Agent W environment.
 
@@ -69,24 +72,20 @@ Install the package globally via npm:
 npm install -g @model-w/agent-w
 ```
 
-### CLI Usage
+### Usage with OpenCode
 
-Agent W comes with a CLI tool to manage its components.
+Agent W works as a native OpenCode plugin. When installed, it automatically
+registers its skill library, making the Model W bootstrapping skills available
+to the LLM without any project-level setup.
 
-#### Install Skill
-
-To install the Model W skill into your agent skills directory (defaults to
-`~/.agents/skills`):
-
-```bash
-agent-w install
-```
-
-To install to a custom directory:
+To add Agent W to your OpenCode environment:
 
 ```bash
-agent-w install /path/to/custom/skills
+opencode plugin add @model-w/agent-w
 ```
+
+Once installed, you can simply ask the agent to bootstrap your project:
+"Initialize this project using the model-w-bootstrap skill."
 
 ### Usage with Gemini
 

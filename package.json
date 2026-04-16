@@ -1,6 +1,9 @@
 {
     "name": "@model-w/agent-w",
     "version": "0.3.1",
+    "type": "module",
+    "main": "./src/index.js",
+    "exports": "./src/index.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/ModelW/agent-w.git"
@@ -16,6 +19,8 @@
         "gemini",
         "cli",
         "extension",
+        "opencode",
+        "plugin",
         "model-w",
         "model-w-bootstrap",
         "agent"
@@ -23,6 +28,7 @@
     "author": "with-madrid.com",
     "license": "WTFPL",
     "devDependencies": {
+        "@opencode-ai/plugin": "^1.4.6",
         "prettier": "^3.8.1"
     }
 }
