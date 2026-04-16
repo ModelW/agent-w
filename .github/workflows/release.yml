@@ -67,7 +67,7 @@ jobs:
 
                       // Find the latest flash model
                       const flashModels = modelsData.models
-                          .filter(m => m.name.includes('flash') && m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('vision') && !m.name.includes('lite') && !m.name.includes('audio') && !m.name.includes('image'))
+                          .filter(m => m.name.includes('flash') && m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('vision') && !m.name.includes('lite') && !m.name.includes('audio') && !m.name.includes('image') && !m.name.includes('tts'))
                           .map(m => m.name.replace('models/', ''));
                           
                       flashModels.sort((a, b) => {
