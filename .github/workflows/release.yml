@@ -40,8 +40,8 @@ jobs:
               run: |
                   # Fetch issues securely using gh cli
                   gh issue list --state all --json title,state,labels --limit 1000 > issues.json
-                  
-                  cat << 'EOF' > analyze.js
+
+                  cat << 'EOF' > analyze.cjs
                   const fs = require('fs');
                   const issues = JSON.parse(fs.readFileSync('issues.json', 'utf8'));
                   const prompt = `You are a strict project maturity analyzer. I will provide a JSON list of the repository's issues. Determine the project's maturity level based on these rules:
@@ -49,9 +49,9 @@ jobs:
                   2. Otherwise, if adoption is growing but not quite stable, output 'MATURITY_BETA'.
                   3. If it is very stable but hasn't reached the 100 issue mark, output 'MATURITY_STABLE'.
                   4. If it's still early, output 'MATURITY_ALPHA'.
-                  
+
                   You MUST respond by wrapping exactly one of the enum values in <result> tags (e.g., <result>MATURITY_ALPHA</result>) and absolutely nothing else.
-                  
+
                   Issues JSON:
                   ${JSON.stringify(issues)}`;
 
@@ -104,10 +104,10 @@ jobs:
                   }
                   run();
                   EOF
-                  
-                  MATURITY_RESULT=$(node analyze.js)
-                  rm analyze.js issues.json
-                  
+
+                  MATURITY_RESULT=$(node analyze.cjs)
+                  rm analyze.cjs issues.json
+
                   if echo "$MATURITY_RESULT" | grep -E -q "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>"; then
                       MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>" | sed -e 's/<result>//' -e 's/<\/result>//' | tail -n 1)
                       echo "maturity_level=$MATCH" >> $GITHUB_OUTPUT
