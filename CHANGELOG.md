@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-04-16
+
+### Features
+
+- **Native OpenCode Support:** Enable Agent W as a native OpenCode plugin via a
+  new configuration hook that automatically registers the Model W skill library.
+- **ES Modules Refactor:** Complete migration of the codebase to ES Modules to
+  support the plugin SDK and modern Node.js standards.
+
+### Refactoring
+
+- Refactor bootstrap skill for improved reliability and maintainability.
+
+### Fixes
+
+- Filter out TTS models during maturity analysis to ensure accurate project
+  assessment.
+- Fix maturity analysis script to correctly use `.cjs` extension where required.
+
+### Maintenance
+
+- Clean up temporary release files in CI/CD workflows and `.gitignore`.
+
 ## [0.3.1] - 2026-03-11
 
 ### CI/CD & Publishing
