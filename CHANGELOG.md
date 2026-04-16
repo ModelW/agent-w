@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-04-16
+
+### Maintenance
+
+- **Release Standardization:** Enforce a consistent GitHub Release naming format
+  `v<Version> — <Title>`.
+- **Workflow Optimization:** Update release workflow prompts to match updated
+  skill instructions.
+
 ## [0.4.0] - 2026-04-16
 
 ### Features
