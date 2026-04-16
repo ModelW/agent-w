@@ -52,8 +52,8 @@ if (command === "install") {
         destBase = path.join(os.homedir(), destBase.slice(2));
     }
 
-    const destFolder = path.join(destBase, "model-w");
-    const srcFolder = path.join(__dirname, "..", "skills", "model-w");
+    const destFolder = path.join(destBase, "model-w-bootstrap");
+    const srcFolder = path.join(__dirname, "..", "skills", "model-w-bootstrap");
 
     console.log(`${colors.blue}Installing Agent W skill...${colors.reset}`);
     console.log(`Source: ${colors.yellow}${srcFolder}${colors.reset}`);

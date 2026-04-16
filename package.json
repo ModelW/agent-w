@@ -17,6 +17,7 @@
         "cli",
         "extension",
         "model-w",
+        "model-w-bootstrap",
         "agent"
     ],
     "author": "with-madrid.com",

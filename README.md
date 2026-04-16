@@ -52,9 +52,10 @@ We aim to reach version 1.0 once the following milestones are achieved:
 
 ## Features
 
-- **Model W Meta-Skill:** Installs a philosophy and strategy skill (`model-w`)
-  that guides the AI agent to understand and adopt the Model W project
-  structure, dependencies, testing, and deployment processes.
+- **Model W Meta Bootstrap:** Installs a bootstrapping skill
+  (`model-w-bootstrap`) that guides the AI agent to create specialized local
+  skills for the project's structure, dependencies, testing, and update
+  processes.
 - **CLI Tool:** Includes a command-line interface (`agent-w`) for managing the
   Agent W environment.
 
@@ -93,18 +94,17 @@ Once the package is installed and the skill has been added to your agents
 folder, you can use it within any Gemini CLI session.
 
 1.  **Verify Installation:** Go to your project root and list the available
-    skills to ensure `model-w` is visible:
+    skills to ensure `model-w-bootstrap` is visible:
     ```bash
     /skills list
     ```
-2.  **Initialize your project:** Ask Gemini to set up the local context for your
-    specific Model W project:
+2.  **Initialize your project:** Ask Gemini to bootstrap the local context for
+    your specific Model W project:
     ```bash
-    gemini "Please investigate this project and create the local model-w-local skill"
+    gemini "Use the model-w-bootstrap skill to initialize this project"
     ```
-3.  **Reload Skills:** After the local skill is created in
-    `.agents/skills/model-w-local/SKILL.md`, reload the skill list so Gemini can
-    use it:
+3.  **Reload Skills:** After the local skills are created in `.agents/skills/`,
+    reload the skill list so Gemini can use them:
     ```bash
     /skills reload
     ```
