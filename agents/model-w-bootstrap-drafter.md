@@ -42,7 +42,7 @@ Create the following skills. **CRITICAL**: Skills MUST be created following the 
 
 ## Constraints
 
-- **Strict Frontmatter**: Every skill must start with correct YAML frontmatter.
+- **Strict Frontmatter**: Every skill must start with correct YAML frontmatter containing `name`, `description`, `license: WTFPL`, and `metadata.author: with-madrid.com`.
 - **Actionable Commands**: Provide exact commands in backticks.
 - **No Preamble**: Skills should get straight to the instructions.
 - **Relative Paths**: Use paths relative to the repository root. **CRITICAL**: In copy-pasteable commands (like `cd`), ALWAYS use paths relative to the project root (e.g., `cd api`). NEVER hardcode absolute paths or paths specific to your current machine (e.g., `/home/user/project/api`).

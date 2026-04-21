@@ -27,7 +27,7 @@ Take the report from Phase 1 and invoke the `model-w-bootstrap-drafter` agent to
 ### Phase 3: Verification & Hygiene
 Invoke the `model-w-bootstrap-tester` agent to verify the newly created commands, check the skill path conventions, and ensure the project's Git hygiene.
 
-> **Prompt**: "Verify that all new skills follow the .agents/skills/<skill-name>/SKILL.md convention. Verify all commands in the newly created skills. Ensure that .claude/ is correctly gitignored according to Model W strict mandates."
+> **Prompt**: "Verify that all new skills follow the .agents/skills/<skill-name>/SKILL.md convention and have proper metadata headers (name, description, license, author). Verify all commands in the newly created skills. Ensure that .claude/ is correctly gitignored according to Model W strict mandates."
 
 ## Final Instruction
 
