@@ -2,8 +2,9 @@
 
 <img src="agent-w.png" alt="Agent W" width="300">
 
-Agent W is a Gemini CLI extension and OpenCode plugin that provides tools and
-skills required to facilitate working on Model W projects with coding agents.
+Agent W is a Gemini CLI extension, OpenCode plugin, and Claude Code plugin that
+provides tools and skills required to facilitate working on Model W projects
+with coding agents.
 
 ## Philosophy
 
@@ -56,9 +57,9 @@ We aim to reach version 1.0 once the following milestones are achieved:
   (`model-w-bootstrap`) that guides the AI agent to create specialized local
   skills for the project's structure, dependencies, testing, and update
   processes.
-- **De Facto Skills (OpenCode):** When used as an OpenCode plugin, Agent W
-  skills are automatically available to the agent without any project-level
-  installation.
+- **De Facto Skills (OpenCode & Claude Code):** When used as an OpenCode or
+  Claude Code plugin, Agent W skills are automatically available to the agent
+  without any project-level installation.
 - **CLI Tool:** Includes a command-line interface (`agent-w`) for managing the
   Agent W environment.
 
@@ -86,6 +87,19 @@ opencode plugin add @model-w/agent-w
 
 Once installed, you can simply ask the agent to bootstrap your project:
 "Initialize this project using the model-w-bootstrap skill."
+
+### Usage with Claude Code
+
+Agent W works as a native Claude Code plugin. You can install it by adding the
+Model W marketplace and then installing the plugin:
+
+```bash
+claude plugin marketplace add ModelW/agent-w
+claude plugin install agent-w
+```
+
+Once installed, you can use the `/model-w-bootstrap` command directly in your
+session.
 
 ### Usage with Gemini
 

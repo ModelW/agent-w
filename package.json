@@ -13,7 +13,8 @@
         "agent-w": "bin/cli.js"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "npm run test:plugin",
+        "test:plugin": "claude plugin validate .claude-plugin/plugin.json && claude plugin validate .claude-plugin/marketplace.json"
     },
     "keywords": [
         "gemini",

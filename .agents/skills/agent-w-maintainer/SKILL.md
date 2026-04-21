@@ -62,8 +62,8 @@ you must:
     - **1.0.0 Release Rule:** If the `$MATURITY_LEVEL` is `MATURITY_1_0_0_READY`
       and the current version is `< 1.0.0`, you MUST bump the version to
       `1.0.0`.
-3. **Update Version:** Bump the `version` field in `package.json` according to
-   your decision.
+3. **Update Version:** Bump the `version` field in `package.json` and
+   `.claude-plugin/plugin.json` according to your decision.
 4. **Update Docs:** Update the "Project Status" section in the `README.md` to
    reflect the specific `$MATURITY_LEVEL` (e.g., changing the warning from alpha
    to beta, or removing the warning if stable/1.0.0).
@@ -74,7 +74,8 @@ you must:
    line in the format `v<Version> — <Title>` (where `<Title>` is an engaging,
    short, and possibly humorous headline), a blank line, and then the detailed
    release description (this will be used for the GitHub Release).
-6. **Format:** Ensure `package.json`, `README.md`, and `CHANGELOG.md` are
+6. **Format:** Ensure `package.json`, `.claude-plugin/plugin.json`,
+   `.claude-plugin/marketplace.json`, `README.md`, and `CHANGELOG.md` are
    formatted properly (`npx prettier --write .`).
 7. **Terminate:** Exit successfully so the pipeline can safely commit the files,
    tag the release, and publish to NPM.
