@@ -6,17 +6,5 @@
     "name": "with-madrid.com",
     "url": "https://github.com/ModelW/agent-w"
   },
-  "skills": "./skills",
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -d .agents/skills ]; then mkdir -p .claude && ln -sfn \"$(pwd)/.agents/skills\" .claude/skills; fi"
-          }
-        ]
-      }
-    ]
-  }
+  "skills": "./skills"
 }

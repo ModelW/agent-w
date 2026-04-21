@@ -105,6 +105,9 @@ claude plugin install agent-w
 Once installed, you can use the `/model-w-bootstrap` command directly in your
 session.
 
+Note: If you add new skills to `.agents/skills` during an active session, you
+may need to run `/skills reload` for them to be discovered.
+
 ### Usage with Gemini
 
 Once the package is installed and the skill has been added to your agents
