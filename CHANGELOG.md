@@ -6,9 +6,30 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 
-- **Native Claude Code Support:** Enable Agent W as a native Claude Code plugin
-  with NPM distribution, allowing it to be installed and used directly within
-  the Claude Code environment.
+- **Automatic Skill Injection:** Inject workspace `.agents/skills` automatically
+  into Claude Code sessions via a symlink-based plugin hook, ensuring seamless
+  access to project-specific skills.
+- **Enhanced Model W Bootstrap:** Refactor the bootstrap process into a
+  multi-phase sub-agent workflow (Explorer, Drafter, Tester) for significantly
+  improved reliability and depth of project analysis.
+- **Strict Coding Standards:** Enforce Model W philosophy, path conventions, and
+  mandatory metadata headers in all generated skills to ensure ecosystem
+  consistency.
+- **Advanced Git Hygiene:** Implement strict guidelines for commit and push
+  operations for coding agents, including mandatory issue referencing and clear
+  differentiation between local and remote operations.
+- **License Management:** Enforce a Proprietary license for generated skills
+  while maintaining WTFPL for Agent W internals, protecting internal project
+  intellectual property.
+
+### Fixes
+
+- **Claude Code Integration:** Fix JS interface issues and implement robust
+  symlink injection fallbacks for varied environments.
+- **OpenCode Plugin:** Resolve agent loading issues and improve plugin
+  initialization reliability.
+- **Skill Naming:** Enforce strict naming conventions across the Model W skill
+  library.
 
 ## [0.4.1] - 2026-04-16
 
