@@ -11,9 +11,10 @@ This skill defines the strict rules for version control operations within this p
 
 **Committing and pushing are distinct operations and must be handled separately.**
 
-- **Commit**: You may only run `git commit` when explicitly asked to "commit".
-- **Push**: You may only run `git push` when explicitly asked to "push".
+- **Commit**: You may only run `git commit` when explicitly and immediately asked to "commit" (e.g., "commit this").
+- **Push**: You may only run `git push` when explicitly and immediately asked to "push".
 - **CRITICAL**: If the user asks you to "commit", you must **NOT** push the changes unless they also explicitly asked to "push" (e.g., "commit and push").
+- **NO AUTONOMY**: Even if you have been asked to commit once, every subsequent set of changes requires a **NEW** and **EXPLICIT** manual instruction to commit. Do not assume that a prior instruction to "keep committing" or "commit your work" applies to future changes. Only commit in reaction to IMMEDIATE instructions from the user.
 
 Automatic or proactive version control operations are strictly prohibited.
 
