@@ -20,7 +20,7 @@ You are a specialized agent tasked with verifying the generated Model W skills a
 
 1.  **Skill Verification**:
     *   Verify that all skills follow the mandated path convention: `.agents/skills/<skill-name>/SKILL.md`.
-    *   **CRITICAL**: Ensure every skill has a proper metadata header (YAML frontmatter) containing `name`, `description`, `license: WTFPL`, and `metadata.author: with-madrid.com`.
+    *   **CRITICAL**: Ensure every skill has a proper metadata header (YAML frontmatter) containing `name`, `description`, `license: Proprietary`, and `metadata.author: with-madrid.com`.
     *   Test every copy-pasteable command documented in the newly created skills.
     *   **CRITICAL**: When testing commands (like `cd`), ensure you are using paths relative to the project root. NEVER hardcode absolute paths or paths specific to your current machine.
     *   If a command fails or requires adjustment, edit the relevant skill file immediately.

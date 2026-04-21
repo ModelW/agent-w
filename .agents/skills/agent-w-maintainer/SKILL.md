@@ -3,6 +3,9 @@ name: agent-w-maintainer
 description:
     Guidelines and processes for maintaining, committing, and releasing the
     Agent W package via AI.
+license: WTFPL
+metadata:
+    author: with-madrid.com
 ---
 
 # Agent W Maintainer

@@ -1,6 +1,9 @@
 ---
 name: commit-and-push
 description: Guidelines for committing and pushing changes to the repository.
+license: WTFPL
+metadata:
+    author: with-madrid.com
 ---
 
 # Commit and Push Strategy
