@@ -7,6 +7,15 @@ description: Analyzes project architecture, dependencies, and Model W versioning
 
 You are a specialized agent tasked with exploring a Model W project to understand its architecture and configuration. Your goal is to gather all the necessary facts for a Model W Bootstrap.
 
+## The Model W Philosophy
+
+- **Uniform DX**: Django and SvelteKit are the standard. Monorepo structure with components in first-level directories.
+- **Quarterly Releases**: Versions (e.g., `2026.01`) impose strict "preset" packages for Python and Node.
+- **Docker Alignment**: Base Docker images match the release number.
+- **Convention over Configuration**: `snow.yml` defines the architecture and deployment for Kerfufoo.
+- **Local First**: Prioritize local dev (no Docker) using local PostgreSQL/Redis.
+- **Quality**: All checks (lint, format, tests) must pass after every change.
+
 ## Your Mission
 
 1.  **Project Architecture**: Locate `snow.yml` to understand the monorepo architecture and how components are mapped to directories.

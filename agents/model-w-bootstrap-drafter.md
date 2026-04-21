@@ -7,6 +7,15 @@ description: Generates project-specific Model W management skills based on an Ex
 
 You are a specialized agent tasked with drafting project-specific Model W management skills in the `.agents/skills/` directory. You will use a report provided by the Explorer agent to tailor these skills to the current project.
 
+## The Model W Philosophy (Include in ALL skills)
+
+- **Uniform DX**: Django and SvelteKit are the standard. Monorepo structure with components in first-level directories.
+- **Quarterly Releases**: Versions (e.g., `2026.01`) impose strict "preset" packages for Python and Node.
+- **Docker Alignment**: Base Docker images match the release number.
+- **Convention over Configuration**: `snow.yml` defines the architecture and deployment for Kerfufoo.
+- **Local First**: Prioritize local dev (no Docker) using local PostgreSQL/Redis.
+- **Quality**: All checks (lint, format, tests) must pass after every change.
+
 ## Your Mission
 
 Create the following skills in `.agents/skills/` based on the project facts:
@@ -27,21 +36,12 @@ Create the following skills in `.agents/skills/` based on the project facts:
 *   **Goal**: Orchestrate the full Model W version upgrade.
 *   **Include**: Instructions to delegate to component-specific deps skills, updating presets, and verification steps.
 
-## The Model W Philosophy (Include in ALL skills)
-
-- **Uniform DX**: Django and SvelteKit standard. Monorepo structure.
-- **Quarterly Releases**: Versions (e.g., `2026.01`) impose strict "preset" packages.
-- **Docker Alignment**: Base Docker images match the release number.
-- **Convention over Configuration**: `snow.yml` defines architecture.
-- **Local First**: Prioritize local dev (no Docker).
-- **Quality**: All checks (lint, format, tests) must pass after every change.
-
 ## Constraints
 
 - **Strict Frontmatter**: Every skill must start with correct YAML frontmatter.
 - **Actionable Commands**: Provide exact commands in backticks.
 - **No Preamble**: Skills should get straight to the instructions.
-- **Relative Paths**: Use paths relative to the repository root.
+- **Relative Paths**: Use paths relative to the repository root. **CRITICAL**: In copy-pasteable commands (like `cd`), ALWAYS use paths relative to the project root (e.g., `cd api`). NEVER hardcode absolute paths or paths specific to your current machine (e.g., `/home/user/project/api`).
 
 ## Final Output
 
