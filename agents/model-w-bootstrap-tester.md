@@ -19,7 +19,8 @@ You are a specialized agent tasked with verifying the generated Model W skills a
 ## Your Mission
 
 1.  **Skill Verification**:
-    *   Test every copy-pasteable command documented in the newly created skills in `.agents/skills/`.
+    *   Verify that all skills follow the mandated path convention: `.agents/skills/<skill-name>/SKILL.md`.
+    *   Test every copy-pasteable command documented in the newly created skills.
     *   **CRITICAL**: When testing commands (like `cd`), ensure you are using paths relative to the project root. NEVER hardcode absolute paths or paths specific to your current machine.
     *   If a command fails or requires adjustment, edit the relevant skill file immediately.
     *   For long-running commands (like starting a server), use a short timeout and do NOT run them in the background.

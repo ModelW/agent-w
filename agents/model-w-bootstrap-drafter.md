@@ -18,21 +18,25 @@ You are a specialized agent tasked with drafting project-specific Model W manage
 
 ## Your Mission
 
-Create the following skills in `.agents/skills/` based on the project facts:
+Create the following skills. **CRITICAL**: Skills MUST be created following the directory structure `.agents/skills/<skill-name>/SKILL.md` (e.g., `.agents/skills/model-w-project-structure/SKILL.md`).
 
 ### 1. `model-w-project-structure`
+*   **Path**: `.agents/skills/model-w-project-structure/SKILL.md`
 *   **Goal**: Map components to directories and explain frameworks.
 *   **Include**: Role of each first-level directory, reference environment variables, and task management (Celery/Procrastinate).
 
 ### 2. `model-w-deps-<component>`
+*   **Path**: `.agents/skills/model-w-deps-<component>/SKILL.md`
 *   **Goal**: Manage dependencies for each identified component.
 *   **Include**: The specific manager (uv, poetry, npm, pnpm), how to run commands, and the "Model W Update Strategy" (relaxing constraints to `*` for non-presets).
 
 ### 3. `model-w-qa-<component>`
+*   **Path**: `.agents/skills/model-w-qa-<component>/SKILL.md`
 *   **Goal**: Linting, formatting, and testing.
 *   **Include**: Exact commands for lint/format (ruff, black, prettier) and tests (pytest, vitest, bdd).
 
 ### 4. `model-w-update` (Global)
+*   **Path**: `.agents/skills/model-w-update/SKILL.md`
 *   **Goal**: Orchestrate the full Model W version upgrade.
 *   **Include**: Instructions to delegate to component-specific deps skills, updating presets, and verification steps.
 
