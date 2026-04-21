@@ -9,7 +9,13 @@ This skill defines the strict rules for version control operations within this p
 
 ## 1. Explicit Consent
 
-**NEVER** commit or push changes unless you have been explicitly asked to do so by the user. Automatic or proactive commits are strictly prohibited.
+**Committing and pushing are distinct operations and must be handled separately.**
+
+- **Commit**: You may only run `git commit` when explicitly asked to "commit".
+- **Push**: You may only run `git push` when explicitly asked to "push".
+- **CRITICAL**: If the user asks you to "commit", you must **NOT** push the changes unless they also explicitly asked to "push" (e.g., "commit and push").
+
+Automatic or proactive version control operations are strictly prohibited.
 
 ## 2. Commit Message Format
 
