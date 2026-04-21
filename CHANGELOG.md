@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-04-21
+
+### Features
+
+- **Git Orchestration:** Implement a mandatory Model W git orchestration
+  workflow to ensure consistent commit quality and automated push safety across
+  all agent-led operations.
+
 ## [0.5.0] - 2026-04-21
 
 ### Features
