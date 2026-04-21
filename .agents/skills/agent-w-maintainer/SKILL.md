@@ -15,6 +15,11 @@ releasing `@model-w/agent-w`.
 
 ## Commit Strategy
 
+- **MANDATORY: Use `model-w-commit-push` skill**: You MUST use the
+  `model-w-commit-push` skill for ALL git commit and push operations. This
+  ensures proper Linear ID prefixing, quality verification, and descriptive
+  messaging. NEVER run `git commit` or `git push` directly or through other
+  skills without first invoking this orchestration skill.
 - **Always get human approval:** In interactive sessions, you must always get
   explicit approval from the user before running `git commit`. Never commit code
   autonomously without asking first. **Exception:** If running autonomously in

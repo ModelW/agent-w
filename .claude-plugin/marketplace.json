@@ -1,21 +1,21 @@
 {
-  "name": "model-w",
-  "metadata": {
-    "description": "Official marketplace for Model W agentic tools and skills."
-  },
-  "owner": {
-    "name": "with-madrid.com",
-    "url": "https://github.com/ModelW"
-  },
-  "plugins": [
-    {
-      "name": "agent-w",
-      "description": "Agent W - Tools and skills for Model W projects with coding agents",
-      "source": {
-        "source": "npm",
-        "package": "@model-w/agent-w"
-      },
-      "category": "productivity"
-    }
-  ]
+    "name": "model-w",
+    "metadata": {
+        "description": "Official marketplace for Model W agentic tools and skills."
+    },
+    "owner": {
+        "name": "with-madrid.com",
+        "url": "https://github.com/ModelW"
+    },
+    "plugins": [
+        {
+            "name": "agent-w",
+            "description": "Agent W - Tools and skills for Model W projects with coding agents",
+            "source": {
+                "source": "npm",
+                "package": "@model-w/agent-w"
+            },
+            "category": "productivity"
+        }
+    ]
 }
