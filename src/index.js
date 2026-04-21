@@ -15,10 +15,14 @@ const __dirname = path.dirname(__filename);
  * directory if it exists, allowing Claude Code to see them natively.
  */
 export async function AgentWPlugin(context) {
+    // Internal skills bundled with the plugin
     const internalSkillsPath = path.join(__dirname, "..", "skills");
-    const workspaceSkillsPath = context?.worktree
-        ? path.join(context.worktree, ".agents", "skills")
-        : path.join(process.cwd(), ".agents", "skills");
+
+    // Workspace skills in .agents/skills
+    // context.worktree is an object { path: string, ... }
+    const workspaceRoot =
+        context?.worktree?.path || context?.directory || process.cwd();
+    const workspaceSkillsPath = path.join(workspaceRoot, ".agents", "skills");
 
     return {
         /**
@@ -47,4 +51,7 @@ export async function AgentWPlugin(context) {
     };
 }
 
+// Multiple export patterns for maximum compatibility with different loaders
+export const Plugin = AgentWPlugin;
+export const server = AgentWPlugin;
 export default AgentWPlugin;
