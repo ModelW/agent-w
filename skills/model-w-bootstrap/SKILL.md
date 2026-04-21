@@ -158,3 +158,6 @@ metadata:
 4. **Inspect `Makefile`** for developer shortcuts.
 5. **Identify Model W version** in the `FROM` clause of `Dockerfile` or preset
    package versions.
+6. **Ensure `.claude` is gitignored.** If `.claude` does not already exist in the
+   `.gitignore` file, add it to prevent session data or local configurations
+   from being committed.

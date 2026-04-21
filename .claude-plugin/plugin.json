@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -d .agents/skills ]; then mkdir -p .claude/skills && for d in .agents/skills/*; do if [ -d \"$d\" ]; then ln -sf \"$(pwd)/$d\" \".claude/skills/$(basename \"$d\")\"; fi; done; fi"
+            "command": "if [ -d .agents/skills ]; then mkdir -p .claude && ln -sfn \"$(pwd)/.agents/skills\" .claude/skills; fi"
           }
         ]
       }

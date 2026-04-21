@@ -90,8 +90,12 @@ Once installed, you can simply ask the agent to bootstrap your project:
 
 ### Usage with Claude Code
 
-Agent W works as a native Claude Code plugin. You can install it by adding the
-Model W marketplace and then installing the plugin:
+Agent W works as a native Claude Code plugin. It automatically discovers and
+injects skills from your project's `.agents/skills` directory, making them
+available in your Claude Code sessions.
+
+You can install it by adding the Model W marketplace and then installing the
+plugin:
 
 ```bash
 claude plugin marketplace add ModelW/agent-w
