@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-04-23
+
+### Features
+
+- **Python Testing Skill:** Introduce a specialized Python testing skill to
+  standardize and automate the verification of Model W backend services,
+  ensuring consistent quality across the ecosystem.
+
 ## [0.5.1] - 2026-04-21
 
 ### Features
