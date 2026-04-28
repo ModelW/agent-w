@@ -38,6 +38,16 @@ necessary facts for a Model W Bootstrap.
 5.  **Model W Versioning**: Identify the current Model W version. Check the
     `FROM` clause in `Dockerfile`s or look for Model W preset package versions
     in manifest files.
+6.  **Documentation Infrastructure**: Check for existing documentation:
+    - Look for `doc/` or `docs/` directories at the project root.
+    - Check for `zensical.toml`, `mkdocs.yml`, `conf.py` (Sphinx).
+    - Identify the documentation tooling and its configuration.
+    - Note the structure of existing docs (directories, number of pages,
+      perspectives covered).
+    - Check if docs have a separate `pyproject.toml` or are managed by
+      the main project's dependency manager.
+    - Report whether documentation exists, what it covers, and what tooling
+      is used (or note that no documentation infrastructure exists).
 
 ## Guidelines
 

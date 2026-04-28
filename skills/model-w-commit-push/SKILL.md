@@ -44,6 +44,24 @@ Triggered ONLY when the user's **IMMEDIATE PREVIOUS** instruction is to
   `model-w-qa-*` or `model-w-hygiene` created by the bootstrap skill). Run the
   quality checks defined in those skills. **All checks must pass before
   proceeding.**
+- **Documentation Check**: Before committing, verify that documentation is
+  up-to-date for the changes being committed. This follows the lightweight
+  mode of the `model-w-docs-update` skill:
+  1. Check `git diff --staged` and `git diff` for modified/added code files.
+  2. For each modified code file, verify that all significant code units
+     (functions, classes, components, non-trivial selectors) have inline
+     documentation (docstrings/JSDoc/block comments). New code units MUST have
+     documentation. Modified code units MUST have their documentation updated
+     if the behavior changed.
+  3. Docstrings must follow project conventions: Numpy-style for Python, JSDoc
+     for JS/TS, block comments for CSS. They must explain **why** the code
+     exists, not just restate the signature.
+  4. If a `doc/` folder exists with project-level documentation and the changes
+     are significant (new feature, architectural change, config change), flag
+     that project docs may need updating. Warn the user but do not block the
+     commit -- suggest running `model-w-docs-update` as a follow-up.
+  5. **Missing inline docs on new code units MUST block the commit.** Add the
+     documentation before proceeding.
 
 ### 2. Orchestration
 

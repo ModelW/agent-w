@@ -36,6 +36,15 @@ directory structure `.agents/skills/<skill-name>/SKILL.md` (e.g.,
 - **Goal**: Map components to directories and explain frameworks.
 - **Include**: Role of each first-level directory, reference environment
   variables, and task management (Celery/Procrastinate).
+- **MUST Include a "Documentation" section** describing:
+  - The `doc/` folder (if it exists) and the documentation tooling in use.
+  - How to build and preview docs locally (e.g., `cd doc && uv run zensical
+    serve`).
+  - The perspective-based organization (User, Admin, Tester, Developer) if
+    docs follow Model W conventions.
+  - If no `doc/` folder exists, note this and reference the
+    `model-w-docs-generate` skill for setting up documentation infrastructure
+    and `model-w-docs-update` for ongoing maintenance.
 
 ### 2. `model-w-deps-<component>`
 
@@ -48,9 +57,19 @@ directory structure `.agents/skills/<skill-name>/SKILL.md` (e.g.,
 ### 3. `model-w-qa-<component>`
 
 - **Path**: `.agents/skills/model-w-qa-<component>/SKILL.md`
-- **Goal**: Linting, formatting, and testing.
+- **Goal**: Linting, formatting, testing, and documentation.
 - **Include**: Exact commands for lint/format (ruff, black, prettier) and tests
   (pytest, vitest, bdd).
+- **MUST Include a "Documentation" section** with:
+  - Inline documentation check: all new or modified code units must have
+    docstrings (Numpy-style for Python, JSDoc for JS/TS, block comments for
+    CSS/SCSS).
+  - Docstrings must explain **why** the code exists, **who calls it** (if
+    non-obvious), **tricky behavior**, and **hack justifications**.
+  - If a `doc/` folder exists: project-level docs must be checked for
+    staleness when features or architecture change.
+  - Reference the `model-w-docs-update` skill for incremental documentation
+    updates and `model-w-docs-generate` for full regeneration.
 
 ### 4. `model-w-update` (Global)
 
