@@ -26,6 +26,10 @@ When testing Django applications, you must ensure the database is handled correc
 - **Database Access**: Always use the `db` or `transactional_db` fixture to allow database access.
 - **No Mocking Models**: Do not mock Django models. Create them for real in the test database.
 
+## Testing Django Views
+
+When testing Django views, **always** use Django's built-in test `Client` (`django.test.Client`) to make requests through the full HTTP stack (URL routing, middleware, views, response). Do NOT call view functions directly or use `RequestFactory`. Create authentication tokens and other auth prerequisites as pytest fixtures and pass them via the `headers` parameter (e.g., `client.get("/api/foo/", headers={"authorization": f"Bearer {token}"})`).
+
 ## External API Calls
 
 If the code makes external HTTP calls (either directly via `httpx` or through a custom API client abstraction):
