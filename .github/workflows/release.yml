@@ -119,7 +119,7 @@ jobs:
 
             - name: Phase 2 - Execution & Versioning
               env:
-                  GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
                   OPENCODE_CONFIG_CONTENT: '{"provider":{"google":{}}}'
               run: |
                   set -euo pipefail
