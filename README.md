@@ -102,11 +102,11 @@ This single command will:
 1. **Register and configure** the following MCP servers in your OpenCode config
    (`~/.config/opencode/opencode.json`):
 
-   | Server           | Type   | Auth   | Description                          |
-   | ---------------- | ------ | ------ | ------------------------------------ |
-   | `figma`          | Remote | OAuth  | Figma design integration             |
-   | `linear`         | Remote | OAuth  | Linear issue tracking                |
-   | `chrome-devtools`| Local  | None   | Chrome DevTools browser automation   |
+    | Server            | Type   | Auth  | Description                        |
+    | ----------------- | ------ | ----- | ---------------------------------- |
+    | `figma`           | Remote | OAuth | Figma design integration           |
+    | `linear`          | Remote | OAuth | Linear issue tracking              |
+    | `chrome-devtools` | Local  | None  | Chrome DevTools browser automation |
 
 2. **Authenticate** each server that requires OAuth by running
    `opencode mcp auth <name>`, which opens a browser window for you to
@@ -153,8 +153,12 @@ MCP servers are defined as classes in `bin/cli.js`. Each server extends the
 
 ```javascript
 class MyNewMCP extends MCPServer {
-    get name() { return "my-server"; }
-    get requiresAuth() { return true; }
+    get name() {
+        return "my-server";
+    }
+    get requiresAuth() {
+        return true;
+    }
 
     async generateConfig() {
         return {
@@ -173,7 +177,12 @@ class MyNewMCP extends MCPServer {
 Then add an instance to the `MCP_SERVERS` array:
 
 ```javascript
-const MCP_SERVERS = [new FigmaMCP(), new LinearMCP(), new ChromeDevtoolsMCP(), new MyNewMCP()];
+const MCP_SERVERS = [
+    new FigmaMCP(),
+    new LinearMCP(),
+    new ChromeDevtoolsMCP(),
+    new MyNewMCP(),
+];
 ```
 
 ### Formatting & Linting

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-05-07
+
+### Features
+
+- **Recursive Documentation:** Introduce a recursive documentation generation
+  and incremental update system to ensure codebase documentation remains
+  synchronized with evolving code structures.
+- **MCP Architecture Refactor:** Rewrite `setup-mcp` around a class-based MCP
+  server architecture optimized for OpenCode, improving extensibility and
+  maintenance of remote integrations.
+- **Python Testing Standards:** Mandate the use of Django's test Client for view
+  tests within the Python testing skill to ensure robust and idiomatic backend
+  verification.
+
+### CI/CD & Reliability
+
+- **OpenCode Release Workflow:** Replace Gemini CLI with OpenCode in the release
+  workflow and implement fail-fast mechanisms for agent errors.
+- **Workflow Robustness:** Fix release workflow issues related to Google API key
+  environment variable naming, provider resolution in CI, and model
+  auto-detection across workflow phases.
+
 ## [0.6.0] - 2026-04-23
 
 ### Features
