@@ -120,6 +120,7 @@ jobs:
             - name: Phase 2 - Execution & Versioning
               env:
                   GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  OPENCODE_CONFIG_CONTENT: '{"provider":{"google":{}}}'
               run: |
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
                   if [ -z "$LAST_TAG" ]; then
