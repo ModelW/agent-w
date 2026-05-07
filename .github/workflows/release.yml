@@ -29,8 +29,8 @@ jobs:
                   node-version: "24.x"
                   registry-url: "https://registry.npmjs.org"
 
-            - name: Install Gemini CLI
-              run: npm install -g @google/gemini-cli
+            - name: Install OpenCode
+              run: npm install -g opencode-ai
 
             - name: Phase 1 - Project Maturity Analysis
               id: maturity-analysis
@@ -119,7 +119,7 @@ jobs:
 
             - name: Phase 2 - Execution & Versioning
               env:
-                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
               run: |
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
                   if [ -z "$LAST_TAG" ]; then
@@ -137,7 +137,7 @@ jobs:
 
                   PROMPT="Please act as the agent-w-maintainer. The project maturity has been securely determined as: $MATURITY_LEVEL. Here are the commits since the last release:\n$COMMITS\n\nBased on the semantic meaning of these commits AND the maturity level, decide the next version bump. If the maturity is MATURITY_1_0_0_READY and the current version is < 1.0.0, you must bump to 1.0.0. Otherwise, perform a standard patch/minor/major bump.\n\nApply the version bump to package.json. Then, update CHANGELOG.md. Next, update the 'Project Status' section in README.md to accurately reflect the current maturity ($MATURITY_LEVEL). Finally, create a file named 'release_notes.md' where the first line is the release name in the format v<Version> — <Title> (where <Title> is an engaging, short, and possibly humorous headline), followed by a blank line, and then the detailed release description (similar to what you put in the CHANGELOG). You are running in CI/CD and are pre-approved to modify these files. Do NOT commit the changes, the pipeline will handle the commit step. ${{ github.event.inputs.instructions }}"
 
-                  gemini --prompt "$PROMPT" --approval-mode=yolo
+                  opencode run --model google/gemini-3-flash-preview --dangerously-skip-permissions "$PROMPT"
 
             - name: Commit, Tag, and Push
               env:
