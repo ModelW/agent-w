@@ -100,13 +100,21 @@ jobs:
                       console.error("=> Raw LLM Output:");
                       console.error(text);
                       console.error("======================================");
+                      // First line: model name, second line: LLM response
+                      console.log(latestModel);
                       console.log(text);
                   }
                   run();
                   EOF
 
-                  MATURITY_RESULT=$(node analyze.cjs)
+                  ANALYSIS_OUTPUT=$(node analyze.cjs)
                   rm analyze.cjs issues.json
+
+                  # First line is the detected model, rest is maturity result
+                  DETECTED_MODEL=$(echo "$ANALYSIS_OUTPUT" | head -n 1)
+                  MATURITY_RESULT=$(echo "$ANALYSIS_OUTPUT" | tail -n +2)
+
+                  echo "flash_model=$DETECTED_MODEL" >> $GITHUB_OUTPUT
 
                   if echo "$MATURITY_RESULT" | grep -E -q "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>"; then
                       MATCH=$(echo "$MATURITY_RESULT" | grep -E -o "<result>(MATURITY_ALPHA|MATURITY_BETA|MATURITY_STABLE|MATURITY_1_0_0_READY)</result>" | sed -e 's/<result>//' -e 's/<\/result>//' | tail -n 1)
@@ -140,7 +148,7 @@ jobs:
 
                   PROMPT="Please act as the agent-w-maintainer. The project maturity has been securely determined as: $MATURITY_LEVEL. Here are the commits since the last release:\n$COMMITS\n\nBased on the semantic meaning of these commits AND the maturity level, decide the next version bump. If the maturity is MATURITY_1_0_0_READY and the current version is < 1.0.0, you must bump to 1.0.0. Otherwise, perform a standard patch/minor/major bump.\n\nApply the version bump to package.json. Then, update CHANGELOG.md. Next, update the 'Project Status' section in README.md to accurately reflect the current maturity ($MATURITY_LEVEL). Finally, create a file named 'release_notes.md' where the first line is the release name in the format v<Version> — <Title> (where <Title> is an engaging, short, and possibly humorous headline), followed by a blank line, and then the detailed release description (similar to what you put in the CHANGELOG). You are running in CI/CD and are pre-approved to modify these files. Do NOT commit the changes, the pipeline will handle the commit step. ${{ github.event.inputs.instructions }}"
 
-                  opencode run --model google/gemini-3-flash-preview --dangerously-skip-permissions "$PROMPT"
+                  opencode run --model "google/${{ steps.maturity-analysis.outputs.flash_model }}" --dangerously-skip-permissions "$PROMPT"
 
                   # Verify that OpenCode actually made changes
                   if git diff --quiet package.json; then
