@@ -2,9 +2,8 @@
 
 <img src="agent-w.png" alt="Agent W" width="300">
 
-Agent W is a Gemini CLI extension, OpenCode plugin, and Claude Code plugin that
-provides tools and skills required to facilitate working on Model W projects
-with coding agents.
+Agent W is an OpenCode plugin that provides tools and skills required to
+facilitate working on Model W projects with coding agents.
 
 ## Philosophy
 
@@ -57,9 +56,10 @@ We aim to reach version 1.0 once the following milestones are achieved:
   (`model-w-bootstrap`) that guides the AI agent to create specialized local
   skills for the project's structure, dependencies, testing, and update
   processes.
-- **De Facto Skills (OpenCode & Claude Code):** When used as an OpenCode or
-  Claude Code plugin, Agent W skills are automatically available to the agent
-  without any project-level installation.
+- **De Facto Skills:** When used as an OpenCode plugin, Agent W skills are
+  automatically available to the agent without any project-level installation.
+- **MCP Server Setup:** Configures and authenticates all required MCP servers
+  (Figma, Linear, Chrome DevTools) in a single command.
 - **CLI Tool:** Includes a command-line interface (`agent-w`) for managing the
   Agent W environment.
 
@@ -88,47 +88,35 @@ opencode plugin add @model-w/agent-w
 Once installed, you can simply ask the agent to bootstrap your project:
 "Initialize this project using the model-w-bootstrap skill."
 
-### Usage with Claude Code
+### Setting Up MCP Servers
 
-Agent W works as a native Claude Code plugin. It automatically discovers and
-injects skills from your project's `.agents/skills` directory, making them
-available in your Claude Code sessions.
-
-You can install it by adding the Model W marketplace and then installing the
-plugin:
+Agent W ships with a CLI command that configures all required MCP servers for
+OpenCode and handles OAuth authentication automatically:
 
 ```bash
-claude plugin marketplace add ModelW/agent-w
-claude plugin install agent-w
+agent-w setup-mcp
 ```
 
-Once installed, you can use the `/model-w-bootstrap` command directly in your
-session.
+This single command will:
 
-**Note:** After running the bootstrap command and generating the local skills in
-`.agents/skills`, you must restart/reload your Claude Code session for the new
-skills to be discovered.
+1. **Register and configure** the following MCP servers in your OpenCode config
+   (`~/.config/opencode/opencode.json`):
 
-### Usage with Gemini
+   | Server           | Type   | Auth   | Description                          |
+   | ---------------- | ------ | ------ | ------------------------------------ |
+   | `figma`          | Remote | OAuth  | Figma design integration             |
+   | `linear`         | Remote | OAuth  | Linear issue tracking                |
+   | `chrome-devtools`| Local  | None   | Chrome DevTools browser automation   |
 
-Once the package is installed and the skill has been added to your agents
-folder, you can use it within any Gemini CLI session.
+2. **Authenticate** each server that requires OAuth by running
+   `opencode mcp auth <name>`, which opens a browser window for you to
+   authorize.
 
-1.  **Verify Installation:** Go to your project root and list the available
-    skills to ensure `model-w-bootstrap` is visible:
-    ```bash
-    /skills list
-    ```
-2.  **Initialize your project:** Ask Gemini to bootstrap the local context for
-    your specific Model W project:
-    ```bash
-    gemini "Use the model-w-bootstrap skill to initialize this project"
-    ```
-3.  **Reload Skills:** After the local skills are created in `.agents/skills/`,
-    reload the skill list so Gemini can use them:
-    ```bash
-    /skills reload
-    ```
+You can optionally pass a custom config path:
+
+```bash
+agent-w setup-mcp ~/.config/opencode/opencode.json
+```
 
 #### Examples of what you can ask:
 
@@ -144,18 +132,48 @@ If you want to modify or improve Agent W, you can test it locally.
 
 ### Local Development
 
-You can link this folder to your Gemini CLI for local extension development:
-
-```bash
-gemini extensions link .
-```
-
 To test the CLI command locally without publishing, link the npm package
 globally:
 
 ```bash
 npm link
 agent-w install
+```
+
+### Adding a New MCP Server
+
+MCP servers are defined as classes in `bin/cli.js`. Each server extends the
+`MCPServer` base class and implements:
+
+- **`get name()`** — The key used in the OpenCode config (`mcp.<name>`).
+- **`get requiresAuth()`** — Whether OAuth authentication is needed.
+- **`async generateConfig()`** — Returns the config object to write.
+- **`async authenticate()`** — Runs the authentication flow (calls
+  `opencode mcp auth <name>` for OAuth servers, no-op for local servers).
+
+```javascript
+class MyNewMCP extends MCPServer {
+    get name() { return "my-server"; }
+    get requiresAuth() { return true; }
+
+    async generateConfig() {
+        return {
+            enabled: true,
+            type: "remote",
+            url: "https://mcp.example.com/mcp",
+        };
+    }
+
+    async authenticate() {
+        return runOpenCodeAuth("my-server");
+    }
+}
+```
+
+Then add an instance to the `MCP_SERVERS` array:
+
+```javascript
+const MCP_SERVERS = [new FigmaMCP(), new LinearMCP(), new ChromeDevtoolsMCP(), new MyNewMCP()];
 ```
 
 ### Formatting & Linting
