@@ -82,7 +82,7 @@ to the LLM without any project-level setup.
 To add Agent W to your OpenCode environment:
 
 ```bash
-opencode plugin add @model-w/agent-w
+opencode plugin @model-w/agent-w
 ```
 
 Once installed, you can simply ask the agent to bootstrap your project:
