@@ -15,6 +15,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import https from "https";
+import readline from "readline";
 import { spawn, execSync } from "child_process";
 import { fileURLToPath } from "url";
 
@@ -31,6 +32,26 @@ const colors = {
     magenta: "\x1b[35m",
     cyan: "\x1b[36m",
 };
+
+/**
+ * Prompt the user for input on the terminal.
+ * @param {string} question - The prompt text to display.
+ * @param {string} [defaultValue] - Default value shown in brackets, used when the user presses Enter.
+ * @returns {Promise<string>} The user's answer (or the default value).
+ */
+function prompt(question, defaultValue) {
+    return new Promise((resolve) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
+        const suffix = defaultValue ? ` [${defaultValue}]` : "";
+        rl.question(`  ${question}${suffix}: `, (answer) => {
+            rl.close();
+            resolve(answer.trim() || defaultValue || "");
+        });
+    });
+}
 
 // ---------------------------------------------------------------------------
 // MCP Server classes
@@ -94,7 +115,9 @@ class FigmaMCP extends MCPServer {
     }
 
     async generateConfig() {
-        console.log(`  ${colors.cyan}Registering OAuth client with Figma...${colors.reset}`);
+        console.log(
+            `  ${colors.cyan}Registering OAuth client with Figma...${colors.reset}`
+        );
         const credentials = await this._registerClient();
         return {
             enabled: true,
@@ -146,7 +169,11 @@ class FigmaMCP extends MCPServer {
                         try {
                             resolve(JSON.parse(body));
                         } catch (e) {
-                            reject(new Error(`Failed to parse Figma response: ${e.message}`));
+                            reject(
+                                new Error(
+                                    `Failed to parse Figma response: ${e.message}`
+                                )
+                            );
                         }
                     } else {
                         reject(
@@ -212,13 +239,128 @@ class ChromeDevtoolsMCP extends MCPServer {
         const runner = this._detectRunner();
         return {
             type: "local",
-            command: [runner, "chrome-devtools-mcp@latest", "--no-usage-statistics"],
+            command: [
+                runner,
+                "chrome-devtools-mcp@latest",
+                "--no-usage-statistics",
+            ],
             enabled: true,
         };
     }
 
     async authenticate() {
         // No authentication needed for local stdio server
+    }
+
+    /**
+     * Detect whether pnpx is available, falling back to npx.
+     * @returns {string} "pnpx" or "npx"
+     * @private
+     */
+    _detectRunner() {
+        try {
+            execSync("which pnpx", { stdio: "ignore" });
+            return "pnpx";
+        } catch {
+            return "npx";
+        }
+    }
+}
+
+/**
+ * Sentry MCP server.
+ *
+ * Supports two modes depending on the Sentry instance:
+ * - **SaaS (sentry.io)**: Remote transport via `https://mcp.sentry.dev/mcp`
+ *   with OAuth authentication.
+ * - **Self-hosted**: Local stdio transport via `npx @sentry/mcp-server@latest`
+ *   with an access token and custom host.
+ *
+ * During config generation the user is prompted for their Sentry instance URL
+ * (defaulting to the SaaS URL). Self-hosted users are additionally prompted
+ * for an access token.
+ */
+class SentryMCP extends MCPServer {
+    /** @type {boolean} Set during generateConfig based on user input */
+    _isSaaS = true;
+
+    get name() {
+        return "sentry";
+    }
+
+    get requiresAuth() {
+        return this._isSaaS;
+    }
+
+    async generateConfig() {
+        const host = await prompt("Sentry instance URL", "https://sentry.io");
+
+        this._isSaaS = this._isSaaSHost(host);
+
+        if (this._isSaaS) {
+            return {
+                type: "remote",
+                url: "https://mcp.sentry.dev/mcp",
+                enabled: true,
+                oauth: {},
+            };
+        }
+
+        // Self-hosted: stdio transport with access token
+        const hostname = this._extractHostname(host);
+        const accessToken = await prompt(
+            "Sentry access token (create one in User Settings → Auth Tokens)"
+        );
+
+        if (!accessToken) {
+            console.log(
+                `  ${colors.yellow}⚠ No access token provided. You will need to set SENTRY_ACCESS_TOKEN as an environment variable.${colors.reset}`
+            );
+        }
+
+        const runner = this._detectRunner();
+        const args = ["@sentry/mcp-server@latest", `--host=${hostname}`];
+        if (accessToken) {
+            args.push(`--access-token=${accessToken}`);
+        }
+
+        return {
+            type: "local",
+            command: [runner, ...args],
+            enabled: true,
+        };
+    }
+
+    async authenticate() {
+        if (this._isSaaS) {
+            return runOpenCodeAuth("sentry");
+        }
+        // Self-hosted uses access token — no OAuth needed
+    }
+
+    /**
+     * Determine whether the given URL points to the Sentry SaaS instance.
+     * @param {string} host - URL or hostname entered by the user.
+     * @returns {boolean}
+     * @private
+     */
+    _isSaaSHost(host) {
+        const normalized = host.replace(/\/+$/, "").toLowerCase();
+        return (
+            normalized === "https://sentry.io" ||
+            normalized === "http://sentry.io" ||
+            normalized === "sentry.io"
+        );
+    }
+
+    /**
+     * Extract the hostname (without protocol or trailing slashes) from a URL.
+     * @param {string} url - The URL to extract from.
+     * @returns {string}
+     * @private
+     */
+    _extractHostname(url) {
+        return url.replace(/^https?:\/\//, "").replace(/\/+$/, "");
     }
 
     /**
@@ -264,7 +406,11 @@ function runOpenCodeAuth(name) {
             if (code === 0) {
                 resolve();
             } else {
-                reject(new Error(`opencode mcp auth ${name} exited with code ${code}`));
+                reject(
+                    new Error(
+                        `opencode mcp auth ${name} exited with code ${code}`
+                    )
+                );
             }
         });
 
@@ -283,7 +429,12 @@ function runOpenCodeAuth(name) {
  * Add new MCPServer subclass instances here to include them in the setup flow.
  * @type {MCPServer[]}
  */
-const MCP_SERVERS = [new FigmaMCP(), new LinearMCP(), new ChromeDevtoolsMCP()];
+const MCP_SERVERS = [
+    new FigmaMCP(),
+    new LinearMCP(),
+    new ChromeDevtoolsMCP(),
+    new SentryMCP(),
+];
 
 // ---------------------------------------------------------------------------
 // CLI
@@ -370,12 +521,19 @@ if (command === "install") {
     let configPath = args[1];
 
     if (!configPath) {
-        configPath = path.join(os.homedir(), ".config", "opencode", "opencode.json");
+        configPath = path.join(
+            os.homedir(),
+            ".config",
+            "opencode",
+            "opencode.json"
+        );
     } else if (configPath.startsWith("~/")) {
         configPath = path.join(os.homedir(), configPath.slice(2));
     }
 
-    console.log(`${colors.blue}Setting up MCP servers for OpenCode...${colors.reset}`);
+    console.log(
+        `${colors.blue}Setting up MCP servers for OpenCode...${colors.reset}`
+    );
     console.log(`Config path: ${colors.yellow}${configPath}${colors.reset}\n`);
 
     (async () => {
@@ -384,7 +542,9 @@ if (command === "install") {
             let configObj = {};
             if (fs.existsSync(configPath)) {
                 try {
-                    configObj = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+                    configObj = JSON.parse(
+                        fs.readFileSync(configPath, "utf-8")
+                    );
                 } catch (e) {
                     console.error(
                         `${colors.red}Failed to parse config file. Overwriting with new config.${colors.reset}`
@@ -397,7 +557,9 @@ if (command === "install") {
             for (const server of MCP_SERVERS) {
                 console.log(`${colors.magenta}▸ ${server.name}${colors.reset}`);
                 configObj.mcp[server.name] = await server.generateConfig();
-                console.log(`  ${colors.green}✔ Config generated${colors.reset}\n`);
+                console.log(
+                    `  ${colors.green}✔ Config generated${colors.reset}\n`
+                );
             }
 
             // Write config
@@ -417,7 +579,9 @@ if (command === "install") {
                     `${colors.blue}Authenticating OAuth servers...${colors.reset}\n`
                 );
                 for (const server of authServers) {
-                    console.log(`${colors.magenta}▸ ${server.name}${colors.reset}`);
+                    console.log(
+                        `${colors.magenta}▸ ${server.name}${colors.reset}`
+                    );
                     try {
                         await server.authenticate();
                         console.log(
