@@ -60,6 +60,18 @@ directory structure `.agents/skills/<skill-name>/SKILL.md` (e.g.,
 - **Goal**: Linting, formatting, testing, and documentation.
 - **Include**: Exact commands for lint/format (ruff, black, prettier) and tests
   (pytest, vitest, bdd).
+- **MUST Include a "Testing" section** (the Testing contract) with:
+  - The **fastest correct** full-suite command: check whether pytest-xdist
+    (`-n auto`), `--reuse-db` (pytest-django), vitest parallelism, or an
+    equivalent mechanism is installed, and bake those flags plus the quiet
+    flag (`-q`, `--silent`) into the command.
+  - The single-test command and (if BDD exists) the single-feature-file
+    command.
+  - Estimated wall time per command and a recommended bash timeout in ms
+    (~2× the wall time). If you cannot measure, estimate from the suite
+    size and mark the estimate as unverified.
+  - The invocation rules: redirect output to a temp file, say nothing on
+    success, dump only failures, always pass an explicit timeout.
 - **MUST Include a "Documentation" section** with:
   - Inline documentation check: all new or modified code units must have
     docstrings (Numpy-style for Python, JSDoc for JS/TS, block comments for
@@ -77,6 +89,14 @@ directory structure `.agents/skills/<skill-name>/SKILL.md` (e.g.,
 - **Goal**: Orchestrate the full Model W version upgrade.
 - **Include**: Instructions to delegate to component-specific deps skills,
   updating presets, and verification steps.
+
+### 5. `AGENTS.md ## Testing` section (always)
+
+Regardless of the skills above, ensure the project's `AGENTS.md` contains a
+`## Testing` section carrying the same Testing contract as the QA skills
+(fast commands, timings, timeouts, quiet-on-success rules). Create the
+section if missing, update it if stale. This duplication is deliberate:
+AGENTS.md is visible to every agent even when no skill is loaded.
 
 ## Constraints
 

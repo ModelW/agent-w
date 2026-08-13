@@ -38,7 +38,10 @@ generate the project-specific skills. **CRITICAL**: All skills must follow the
 > suite of Model W management skills (e.g.,
 > .agents/skills/model-w-project-structure/SKILL.md) following the Model W
 > Philosophy. This MUST include documentation requirements in all QA skills
-> and the project structure skill. See documentation standards below.
+> and the project structure skill, AND a Testing contract (fast test
+> commands with parallel/quiet flags, timings, recommended timeouts) in
+> every QA skill and in the project's AGENTS.md `## Testing` section.
+> See documentation standards below.
 > [INSERT REPORT HERE]"
 
 ### Phase 3: Verification & Hygiene
@@ -52,7 +55,9 @@ hygiene.
 > headers (name, description, license, author). Verify all commands in the newly
 > created skills. Ensure that .claude/ is correctly gitignored according to
 > Model W strict mandates. Verify that QA skills include documentation
-> requirements (inline docstrings and project-level docs)."
+> requirements (inline docstrings and project-level docs) and a Testing
+> contract (fast test commands, timings, timeouts), and that AGENTS.md has
+> a matching `## Testing` section."
 
 ## Documentation Standards
 

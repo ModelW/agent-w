@@ -4,9 +4,8 @@ description:
     MUST be loaded whenever the user asks to implement, build, or work on a
     feature, ticket, story, or Linear issue (e.g. "implement LOG-73",
     "let's work on this ticket", "build this feature"). Orchestrates the
-    full feature implementation lifecycle -- planning, touchpoint analysis,
-    user confirmation, implementation, visual testing, BDD test creation,
-    and regression checks.
+    feature lifecycle -- spec filtering, planning, root-level
+    implementation, visual testing, BDD coverage, and regression checks.
 license: WTFPL
 metadata:
     author: with-madrid.com
@@ -14,506 +13,272 @@ metadata:
 
 # Model W Feature Implementation
 
-This skill drives the **end-to-end implementation of a single feature**, from
-a Linear ticket (or equivalent specification) all the way to merge-ready code
-with BDD coverage. It is opinionated about the order of operations and uses
-a roster of sub-agents to keep each phase focused and context-light.
+This skill drives the **end-to-end implementation of a single feature**,
+from a Linear ticket to merge-ready code with BDD coverage.
 
-**CRITICAL: You are an orchestrator.** Your default mode is delegation --
-ticket fetching, planning, exploration, touchpoint analysis,
-implementation, testing, and design fixing all go through sub-agents.
-You read their reports, decide what to do next, and craft the next
-prompt. You handle user-facing interactions (questions, confirmations)
-and the synthesis between phases (turning exploration into a plan,
-deciding how to react to surprises), but the actual code-writing is the
-implementer agent's job, not yours. You are also **forbidden** from
-fetching the raw Linear ticket yourself — the ticket-filter agent
-handles that to keep noise out of your context.
+**You orchestrate the surrounding phases and implement the code
+yourself.** Spec filtering, planning, visual testing, and BDD writing go
+through sub-agents to keep your context clean. Implementation happens at
+root level, in this conversation, so the user can watch and steer.
 
-**Announce every phase transition AND which sub-agent will run it.**
-Before starting any phase, output one line stating which phase you just
-finished, which one you are about to start, and which sub-agent (if
-any) you are about to delegate to:
+**Resume, don't repeat.** Sub-agent sessions keep their context. When
+you need more from a sub-agent that already ran (a question about the
+raw ticket, an answer folded into the plan), re-invoke it with its
+`task_id` instead of starting fresh or redoing its work yourself.
 
-> Completed Phase N (<name>). Starting Phase M (<name>) — delegating to `<sub-agent-name>`.
-
-When a phase does not delegate (e.g. user-facing confirmations, plan
-synthesis, assembling the Spec Pack), say so explicitly:
-
-> Completed Phase N (<name>). Starting Phase M (<name>) — handling directly (no sub-agent).
-
-For the very first phase, say `Starting Phase 0 (Gather the
-Specification) — delegating to model-w-feature-ticket-filter.` (or
-whichever sub-step comes first). Use the same form for sub-step
-transitions inside a phase (e.g. `Completed 0c (Delegate ticket
-filtering). Starting 0d (Resolve filter confirmation questions) —
-handling directly.`) when the sub-step involves a tool call or a user
-question.
-
-This is non-negotiable. The announcement must precede the tool call
-that starts the work, not follow it. It serves three purposes: the user
-sees what is being delegated before it happens, your own context stays
-anchored in the long flow, and choosing the sub-agent name out loud
-forces you to verify you picked the right one before invoking it.
+**Announce each phase transition in one line** before the tool call that
+starts it: `Phase N (<name>) done → Phase M (<name>), delegating to
+<sub-agent>` (or `handling at root`).
 
 ## When to Use
 
-- The user asks to implement, build, or "work on" a feature, ticket, story,
-  or Linear issue.
-- The user pastes a Linear URL, issue ID (e.g. `LOG-73`), or Figma URL and
-  asks for implementation.
-- The user says things like "let's start on this", "code this up", "build
-  this", referring to a specification.
+- The user asks to implement, build, or "work on" a feature, ticket,
+  story, or Linear issue.
+- The user pastes a Linear URL, issue ID (e.g. `LOG-73`), or Figma URL
+  and asks for implementation.
 
 ## When NOT to Use
 
 - Pure bug fixes with no design or specification work.
 - Refactors that do not change behavior.
-- Tasks that are obviously trivial (one-line changes, typo fixes).
-- The user explicitly asks for a different workflow (e.g. "just write the
+- Obviously trivial tasks (one-line changes, typo fixes).
+- The user explicitly asks for a different workflow ("just write the
   code, no planning").
 
 ## Sub-Agent Roster
 
-| Agent                          | Role                                                            | Can edit code? | Tools                |
-| ------------------------------ | --------------------------------------------------------------- | -------------- | -------------------- |
-| `model-w-feature-ticket-filter`| Fetches the Linear ticket and rewrites it as a delta-only spec, stripping noise | No | Linear MCP, Read, Grep, Glob |
-| `model-w-feature-planner`      | Decomposes the feature into elements; orchestrates exploration  | No             | Task                 |
-| `model-w-feature-data-explorer`| For one element, maps data flow (models, APIs, sequences)       | No             | Read, Grep, Glob     |
-| `model-w-feature-touchpoints`  | Identifies insertion points in the existing codebase            | No             | Read, Grep, Glob     |
-| `model-w-feature-implementer`  | Writes the feature code following the confirmed plan            | Yes            | Read, Edit, Write, Bash |
-| `model-w-feature-tester`       | Tests the running feature against the spec via Chrome DevTools  | No             | Chrome DevTools, Task|
-| `model-w-feature-design-fixer` | Applies CSS-only fixes to match Figma designs                   | Yes (CSS only) | Read, Edit, Write    |
+| Agent                           | Role                                                        | Resumable for |
+| ------------------------------- | ----------------------------------------------------------- | ------------- |
+| `model-w-feature-ticket-filter` | Fetches the ticket, returns a noise-filtered delta-only spec | Q&A about the raw ticket, any phase |
+| `model-w-feature-planner`       | Explores the codebase, returns an Implementation Brief       | Folding in the user's answers (Round 2) |
+| `model-w-feature-tester`        | Verifies criteria in the browser, converges CSS to Figma, builds the Selector Map | Re-testing after fixes |
+| `model-w-feature-bdd`           | Proposes a Test Plan, then implements it from the Selector Map | Round 2 (approved plan), follow-up fixes |
 
-## Phase 0: Gather the Specification
+## Phase 0: Specification
 
-**You MUST NOT fetch the Linear ticket yourself.** Project managers
-routinely pad tickets with restated obviousness, over-zealous specs,
-broad context, and already-shipped requirements. Reading the raw ticket
-drags you (and every downstream sub-agent that sees the Specification
-Pack) into noise. The `model-w-feature-ticket-filter` agent is the
-**only** place where raw ticket content is handled.
+**Never fetch the raw Linear ticket yourself.** Most tickets are
+AI-drafted and full of invented technical detail. The ticket-filter
+agent is the only place raw ticket content is handled; it returns
+"valid high-surprise elements" only. When a later phase needs a detail
+the filtered spec lacks, **resume the filter session with a specific
+question** — never re-fetch the ticket.
 
-### 0a: Identify the Ticket
+1. **Identify the ticket**: from the user's message, or the git branch
+   (`*/[issue-id]-*` pattern), or ask via the `question` tool.
+2. **Collect project context**: note any loaded `model-w-project-*` /
+   `model-w-qa-*` skills — the filter and planner need their names.
+3. **Delegate to `model-w-feature-ticket-filter`**:
 
-From the user's request, determine the ticket identifier. Sources, in
-order of preference:
+   > Fetch and filter the following ticket.
+   >
+   > **Ticket identifier**: [ID / URL / branch]
+   > **Project context**: [stack summary + project skill names]
+   >
+   > Return the filtered delta-only spec, confirmation questions,
+   > Figma/image references, a filter audit, and codebase notes.
 
-1. An ID or URL the user pasted directly (e.g. `LOG-73`,
-   `https://linear.app/.../LOG-73`).
-2. The current git branch, if it follows the `*/[issue-id]-*` pattern
-   (e.g. `feature/log-73-something` → `LOG-73`).
-3. If neither is available, ask the user via the `question` tool which
-   ticket they want to work on.
+   Keep the returned `task_id` — you will need it for Q&A.
 
-### 0b: Identify Project Context Skills
+   If the filter reports the ticket can't be found or is unusable, stop
+   and tell the user. Do not invent a specification.
 
-Look at the loaded skills for any `model-w-project-*` or `model-w-qa-*`
-skills. These contain the project-specific architecture and conventions
-the ticket-filter and downstream agents will need. Collect the skill
-names / paths — you will reference them in the prompt below.
+4. **Resolve confirmation questions**: ask the user via the `question`
+   tool. Merge each answer into the relevant CHANGES/CHECKS bullet so
+   the spec reads as if the answers were always there. No separate
+   "clarifications" section.
+5. **Resolve Figma references**: fetch each frame's design context via
+   the Figma MCP and pin down its viewport (`mobile` ≤640 px, `tablet`
+   641–1023, `desktop` ≥1024, or `responsive`). A filter tag
+   (`[mobile]` etc.) from ticket text wins over width inference; a `[?]`
+   you cannot resolve from Figma metadata goes to the user via
+   `question`.
+6. **Assemble the Specification Pack** — the artifact you forward to
+   sub-agents:
+   - The filtered, answer-merged spec.
+   - A `DESIGN` block grouped by viewport (`viewport: - frame name URL`
+     per line; drop empty groups, drop the block if no frames).
+   - One line naming the project-context skill(s) to consult.
 
-### 0c: Delegate Ticket Fetching and Filtering
-
-Invoke the `model-w-feature-ticket-filter` agent:
-
-> **Prompt**: "Fetch and filter the following ticket.
->
-> **Ticket identifier**: [TICKET ID, URL, or branch name as known]
->
-> **Project context**: [BRIEF SUMMARY of the project's stack and main
-> components, plus the paths/names of any `model-w-project-*` /
-> `model-w-qa-*` skills the filter should consult to recognize what
-> is 'already implemented' or 'obvious' for this codebase]
->
-> Return a delta-only specification, a list of confirmation questions
-> for the user, the list of Figma/image references found in the ticket,
-> and a transparent audit of what you filtered out."
-
-**After the filter returns**: do NOT second-guess the filtered spec by
-re-fetching the ticket yourself. The filter is the source of truth from
-this point forward.
-
-If the filter reports the ticket can't be found, is cancelled, or has
-no usable description, stop and report this to the user — do not invent
-a specification.
-
-### 0d: Resolve Filter Confirmation Questions
-
-The filter may surface confirmation questions (ambiguities, contradictions
-between description and comments, missing aspects). Use the `question`
-tool to ask the user before moving on. Their answers fold directly into
-the spec: merge each answer into the relevant CHANGES or CHECKS bullet,
-or add a new bullet. Do NOT create a separate "clarifications" section
-— that's noise. The end result is a spec that reads as if the answers
-were always in the ticket.
-
-### 0e: Fetch and Categorize Figma References
-
-For every Figma URL in the filter's list of visual references, use the
-Figma MCP tools to fetch the design context. This is the orchestrator's
-job (not the filter's) because Figma frames are not noisy in the same
-way ticket text is — they are the visual source of truth.
-
-While fetching, **categorize each frame by viewport** so the implementer
-and tester know which breakpoint it applies to:
-
-- Use the frame's name and width from the Figma metadata. Typical width
-  buckets: `mobile` (≤640 px), `tablet` (641–1023 px), `desktop` (≥1024 px).
-- A frame whose name explicitly says "Responsive", "All breakpoints", or
-  similar is `responsive`.
-- If the filter tagged a frame `[mobile]`/`[tablet]`/`[desktop]`/
-  `[responsive]` from ticket text, prefer that tag — the ticket author's
-  intent overrides width-based inference.
-- If the filter tagged `[?]` and you cannot determine the viewport from
-  Figma metadata either, ask the user via the `question` tool. Do not
-  guess.
-
-Record the resolved `(viewport, frame name, URL)` triples for the
-Specification Pack.
-
-### 0f: Assemble the Specification Pack
-
-Bundle everything into a **Specification Pack** that you will pass
-verbatim to downstream sub-agents. Keep it as small as possible:
-
-- The filtered + answer-merged spec from step 0d (the bulk of the pack).
-- A `DESIGN` block grouped by viewport, one line per frame:
-
-  ```
-  DESIGN
-  mobile:
-    - <frame name> <URL>
-  desktop:
-    - <frame name> <URL>
-  responsive:
-    - <frame name> <URL>
-  ```
-
-  Drop any viewport group that has no frames. Drop the whole DESIGN
-  block if there are no frames at all.
-- One line pointing at the project-context skill(s) downstream agents
-  should consult for conventions. Do not re-summarize them.
-
-Do NOT include: the raw ticket content, the filter's "What was filtered
-out" audit, the codebase notes (those go directly into the planner /
-touchpoints prompts as a separate field — keeping them out of the Pack
-prevents them from leaking into every other agent's context).
+   Do NOT include the raw ticket, the filter audit, or the codebase
+   notes (the notes go only into the planner prompt).
 
 ## Phase 1: Planning
 
-Invoke the `model-w-feature-planner` agent:
+Delegate to `model-w-feature-planner` (Round 1):
 
-> **Prompt**: "Plan the implementation of the following feature.
->
-> **Specification Pack**:
-> [INSERT THE FULL SPECIFICATION PACK]
->
-> **Project context**:
-> [INSERT THE PROJECT CONTEXT SUMMARY]
->
-> Your job is to:
->
-> 1. Enumerate every **visual element** and every **action** in the feature.
-> 2. For each element, spawn a `model-w-feature-data-explorer` sub-agent to
->    determine where its data comes from and where it goes.
-> 3. Produce a mapping table of element → data sources/sinks → status
->    (present, missing, to be confirmed).
-> 4. Return the mapping and an explicit list of items that need user
->    confirmation."
-
-**After the planner returns**: You will receive a list of elements with
-their data-flow mapping and a list of items flagged for user confirmation.
-
-### Phase 1b: User Confirmation of Data Flow
-
-For **each item flagged for confirmation**, use the `question` tool to ask
-the user. Group related questions into a single `question` call when
-possible (the tool supports an array of questions). Typical questions:
-
-- "The data for [element X] does not currently exist. Where should it come
-  from?"
-- "[Element Y] needs to write to [Z]. Is the proposed sink correct?"
-- "Should [feature behavior] follow [option A] or [option B]?"
-
-Record the user's answers. They become inputs for Phase 2.
-
-## Phase 2: Touchpoint Analysis
-
-Invoke the `model-w-feature-touchpoints` agent:
-
-> **Prompt**: "Identify the codebase touchpoints required to implement the
-> following feature.
+> Plan the implementation of the following feature.
 >
 > **Specification Pack**: [INSERT]
->
-> **Confirmed data-flow mapping** (from planning + user confirmations):
-> [INSERT THE UPDATED MAPPING TABLE]
->
+> **Codebase notes from the ticket filter**: [INSERT]
 > **Project context**: [INSERT]
 >
-> Your job is to identify, for each piece of work the feature requires:
+> Explore the codebase and return a draft Implementation Brief
+> (elements, data flow, touchpoints, implementation order, verdict)
+> plus the confirmation questions that block finalization.
+
+Keep the planner's `task_id`. Then:
+
+1. **Ask the user** the planner's confirmation questions via the
+   `question` tool (group related questions into one call). If a
+   question is about what the ticket meant, resume the **filter** first
+   and only bother the user if the ticket doesn't answer it.
+2. **Resume the planner** (same `task_id`) with the answers. It returns
+   the **Final Implementation Brief**. If it was already FINAL (no
+   questions), skip the resume.
+3. **Present the plan** to the user: goal, data-model / backend /
+   frontend changes, sequence, out-of-scope. Ask for explicit sign-off
+   via `question`. Do NOT implement until they confirm; on requested
+   changes, revise (resuming the planner if the change needs new
+   exploration) and ask again.
+
+## Phase 2: Implementation (root level)
+
+You implement the code **yourself, in this session**, following the
+Brief's implementation order. The user can watch and interject — that
+is the point of doing it here.
+
+For each step in the Brief:
+
+1. Read the surrounding code first; match project conventions (naming,
+   file layout, error handling, loading states).
+2. Make the smallest reasonable diff. No adjacent refactors.
+3. Add inline docs for every new code unit (Numpy-style for Python,
+   JSDoc for JS/TS, block comments for CSS) explaining **why**, not
+   restating the signature.
+4. Run mechanical follow-ups (migrations, codegen, formatter) with the
+   project's standard commands. Do NOT run the test suite or full
+   linter — that is Phase 6.
+
+Along the way:
+
+- Keep a running **change log** (file, kind, what, why) — you need it
+  for the tester briefing and the commit.
+- **Surprises surface immediately.** If the Brief is wrong (a pathway
+  doesn't exist, a data shape mismatches), tell the user what you found
+  and how you propose to adapt; for anything that changes the plan's
+  shape, use the `question` tool before diverging. If the surprise
+  needs new exploration, resume the planner rather than spelunking with
+  a dirty context.
+- Do NOT widen scope. Unrelated problems get noted for the user, not
+  fixed.
+- Do NOT install new dependencies unless the plan calls for them — ask
+  first otherwise.
+
+## Phase 3: Visual Testing (only if the feature has a UI)
+
+No UI (pure backend job, migration)? Skip to Phase 4.
+
+1. **Verify dev servers are running.** Never start them yourself. If
+   they are down, ask the user to start them and wait.
+2. **Prepare test data**: create the records/users the feature needs
+   using the project's standard tooling, and collect credentials into a
+   Test Data Pack. Never read `.env` for secrets — ask the user via
+   `question` if a value is needed.
+3. **Delegate to `model-w-feature-tester`**:
+
+   > Test the following feature against the running application.
+   >
+   > **Specification Pack**: [INSERT]
+   > **Implementation summary**: [YOUR CHANGE LOG + anything to watch]
+   > **Test Data Pack**: login URL, credentials, record IDs, navigation
+   > steps.
+   > **Figma references**: [the (viewport, frame, URL) triples]
+   > **Styling conventions**: [Tailwind / CSS modules / etc., token
+   > locations]
+   >
+   > Walk the acceptance criteria, converge the CSS toward the Figma
+   > frames live (HMR), and return the accessibility-first Selector Map.
+
+4. **React to the report**:
+   - Functional failures → fix them at root level (Phase 2 rules),
+     then resume the tester to re-check just those criteria.
+   - Outstanding design deltas needing markup/logic → same.
+   - Accessibility findings (missing labels/roles) → fix them now;
+     they block reliable BDD locators.
+   - Keep the **Selector Map** — it is the main input to Phase 5.
+
+## Phase 4: User Review
+
+Hand off via `question`:
+
+> The feature is implemented and tested. Please review and try it
+> yourself. Any changes, or shall I proceed to BDD tests and final QA?
+
+Apply requested changes (re-running Phase 3 if visuals changed). Do not
+proceed without the go-ahead.
+
+## Phase 5: BDD Tests
+
+Delegate to `model-w-feature-bdd` — do NOT write the Gherkin yourself;
+the agent starts with a fresh context and a mechanical procedure, which
+is far more reliable at this depth of the session. It runs in **two
+rounds** with a user checkpoint between them.
+
+**Round 1 — Test Plan.** Invoke the agent:
+
+> Propose the BDD Test Plan for [TICKET-ID]. Do not write tests yet.
 >
-> - The exact file(s) and function(s)/component(s) where changes must land.
-> - Existing pathways (functions, hooks, API endpoints, signals, stores)
->   that can be reused to move data from source to sink.
-> - Whether the required data is available at that point in the chronology
->   (e.g. is the user authenticated yet? is the parent component mounted?
->   are the relevant models loaded?).
-> - Any blockers: missing infrastructure, missing fields on a model, missing
->   API endpoints, missing routes.
->
-> Produce a structured **Touchpoint Report** that answers: 'Can this feature
-> be implemented with the current state of things, and if so, exactly how?'"
+> **CHECKS**: [the acceptance criteria from the Spec Pack — the agent
+> treats them as input signal, not a test list; many are LLM filler]
+> **Selector Map**: [verbatim from the tester report]
+> **BDD conventions**: feature files in [dir], steps in [dir],
+> framework [pytest-bdd/...], consult [model-w-python-tests / project
+> BDD skill].
+> **Run command**: [single-feature-file command from the project's QA
+> skill or AGENTS.md `## Testing` section, with its timeout in ms]
+> **Tester notes**: [BDD-relevant observations, if any]
 
-**After the agent returns**: Review the Touchpoint Report. If it surfaces
-blockers that require user input (e.g. "we need a new API endpoint -- should
-it be REST or GraphQL?"), use the `question` tool to resolve them before
-moving on.
+Keep the `task_id`. The agent returns a Test Plan: coverage **goals**
+(happy path end-to-end, security rules, probable failure modes), each
+with an EXTEND-existing-scenario or NEW placement, plus a NOT COVERED
+list.
 
-## Phase 3: Plan Presentation & User Confirmation
+**Checkpoint — validate the goals with the user.** Present the plan via
+the `question` tool. The user validates *what* gets tested (the goals
+and the NOT COVERED list), not the step-by-step of each test. Fold
+their amendments in (add a goal, rescue a NOT COVERED item, drop a
+goal).
 
-Now you have everything you need to draft an actual implementation plan.
-Write a concise plan covering:
+**Round 2 — Implementation.** Resume the agent (same `task_id`) with
+the approved plan. It writes the tests (extending existing scenarios by
+default, with explanatory comments), runs the affected files, and fixes
+its own breakage.
 
-1. **Goal**: One-paragraph summary of what will be built.
-2. **Data model changes**: Any new fields, migrations, or schema work.
-3. **Backend changes**: New endpoints, service methods, business logic.
-4. **Frontend changes**: New components, routes, state, styles.
-5. **Sequence**: The order in which the changes will be made.
-6. **Out of scope**: Things you deliberately will not do.
-7. **Open questions**: Anything still uncertain.
+If the agent reports failures that look like feature bugs, fix them at
+root level, then resume the BDD agent to re-run.
 
-Present this plan to the user and use the `question` tool to ask for
-explicit confirmation:
+## Phase 6: Full Regression
 
-> "Here is the implementation plan. Should I proceed as described, or do
-> you want changes?"
+Load and follow the `model-w-run-tests` skill for the full QA pipeline
+(static analysis + entire suite, including the new BDD scenarios). Fix
+regressions introduced by the feature through that skill's normal flow.
+Do not declare the feature done until everything passes.
 
-Do NOT proceed to implementation until the user confirms. If they request
-changes, revise the plan and ask again.
+## Phase 7: Commit
 
-## Phase 4: Implementation
+Ask the user via `question` whether to commit. If yes, defer to the
+`model-w-commit-push` skill (Linear-ID-aware messages, hygiene checks).
+Never push without a separate explicit instruction.
 
-Delegate the actual coding to the `model-w-feature-implementer` agent.
-You do NOT write the feature code yourself — the implementer does. Your
-job here is to brief it precisely and then digest its report.
+## Rules
 
-Invoke the `model-w-feature-implementer` agent:
-
-> **Prompt**: "Implement the following feature according to the confirmed
-> plan and touchpoint report.
->
-> **Specification Pack**: [INSERT]
->
-> **Confirmed implementation plan** (from Phase 3, with user sign-off):
-> [INSERT THE PLAN]
->
-> **Touchpoint Report** (from Phase 2):
-> [INSERT THE REPORT]
->
-> **Confirmed data-flow mapping** (from Phase 1 + 1b):
-> [INSERT THE MAPPING TABLE]
->
-> **Project context**: [INSERT THE PROJECT CONTEXT SUMMARY, INCLUDING THE
-> PATHS OF ANY `model-w-project-*` / `model-w-qa-*` SKILLS THE IMPLEMENTER
-> SHOULD CONSULT FOR CONVENTIONS]
->
-> Implement the plan, surface any surprises, and report back the full
-> change log."
-
-**After the implementer returns**: Read its report carefully.
-
-- **Change log**: the list of files touched. Keep this for the commit
-  message (Phase 9).
-- **Plan coverage**: every plan item should be DONE. If anything is
-  SKIPPED or DEFERRED, decide whether to re-invoke the implementer to
-  finish it, or whether the deferral is acceptable. If you re-invoke,
-  pass the same context plus an explicit list of the remaining items
-  and the implementer's own notes about why they were not done.
-- **Surprises**: each surprise needs a decision. Typical reactions:
-  - The plan was wrong → loop back to Phase 2 or Phase 3 with the new
-    information and re-confirm with the user before re-implementing.
-  - The implementer made an unplanned change that's clearly correct →
-    accept it and note it for the user in Phase 6.
-  - The surprise reveals a missing piece outside the feature's scope →
-    raise it with the user via the `question` tool; do not silently
-    expand scope.
-- **Unplanned changes**: every entry must be justified. If any look
-  like scope creep, ask the implementer to revert them on a second
-  invocation.
-- **Notes for tester / QA**: keep these for Phase 5 and Phase 8 prompts.
-
-You MAY take small direct edits yourself (one- or two-line fixes the
-implementer flagged but didn't apply), but anything substantial goes
-back to the implementer agent. Do not write whole new code units
-yourself.
-
-## Phase 5: Visual Testing (only if the feature has a UI)
-
-If the feature has no visual component (e.g. it is purely a backend job or
-data migration), **skip this phase** and go directly to Phase 7.
-
-### 5a: Verify Test Servers Are Running
-
-Visual testing requires the application to be running locally. **Do not
-start servers yourself.** List running processes and look for the project's
-dev servers (e.g. `vite`, `next`, `manage.py runserver`, `uvicorn`,
-`pnpm dev`, `npm run dev`). If they are not running, **stop and ask the
-user to start them**:
-
-> "I need the test servers running to verify the feature visually. Please
-> start them (e.g. `pnpm dev` for the frontend, `python manage.py runserver`
-> for the backend) and let me know when they are ready."
-
-Do not proceed until the user confirms the servers are up.
-
-### 5b: Prepare Test Data and Credentials
-
-If the feature requires specific test data (a particular user, a piece of
-content, a project in a certain state), create it yourself before delegating.
-Use the project's standard tooling (Django admin/shell, seed scripts, API
-calls). Capture credentials (login email/password, API tokens, IDs of
-created records) into a **Test Data Pack** that you will pass to the tester
-agent.
-
-**Do not read `.env` to fish out credentials.** OpenCode blocks access to
-`.env` and `.env.*` files. If you need a value that lives in `.env` (e.g.
-an admin password, an OAuth client secret, a service URL), ask the user
-via the `question` tool — they can paste it for the duration of the test
-run.
-
-### 5c: Run the Tester Agent
-
-Invoke the `model-w-feature-tester` agent:
-
-> **Prompt**: "Test the following feature end-to-end against the running
-> application.
->
-> **Specification Pack**: [INSERT]
->
-> **Implementation plan**: [INSERT THE CONFIRMED PLAN FROM PHASE 3]
->
-> **Test Data Pack**:
-> - Login URL: [URL]
-> - Credentials: [EMAIL/PASSWORD]
-> - Test records: [LIST WITH IDS]
-> - Feature URL or navigation steps: [HOW TO REACH THE FEATURE]
->
-> **Figma references**: [URLS OF THE RELEVANT FRAMES]
->
-> Your job is to:
->
-> 1. Open the application in Chrome via the chrome-devtools MCP tools.
-> 2. Reach the feature using the provided navigation steps.
-> 3. Verify every acceptance criterion functionally.
-> 4. Compare the implementation visually to the Figma frames.
-> 5. If design mismatches are found, spawn `model-w-feature-design-fixer`
->    sub-agents to fix CSS-only issues, reload the page, and re-check.
-> 6. Produce a report covering: functional pass/fail per criterion, visual
->    deltas (resolved + outstanding), and BDD hints for any gaps that
->    cannot be expressed in the existing step library."
-
-**After the tester returns**:
-
-- If the tester reports functional failures: address them yourself in the
-  code (these are not CSS issues; the design-fixer cannot handle them).
-  Then re-run Phase 5c.
-- If all is well: proceed to Phase 6.
-
-## Phase 6: User Review
-
-Once visual testing passes, hand off to the user for manual review. Use the
-`question` tool:
-
-> "The feature is implemented and visual testing has passed. Please review
-> the code and try the feature yourself. Let me know if you want any
-> changes, or if I can proceed to BDD test creation and final QA."
-
-Apply whatever changes the user requests, re-running Phase 5 if visual
-behavior changed. Do not proceed until the user gives the go-ahead.
-
-## Phase 7: BDD Tests
-
-Once the user has approved the implementation:
-
-1. **Determine BDD conventions**: Check for `model-w-python-tests` or any
-   project-specific BDD skill. Look at `tests/bdd/` (or equivalent) to see
-   how existing scenarios are organized. BDD scenarios MUST be filed under
-   the ticket ID (e.g. `tests/bdd/LOG-73.feature`).
-2. **Write the feature file**: Translate the acceptance criteria into
-   Gherkin scenarios. Cover the happy path and the most important edge
-   cases mentioned in the ticket.
-3. **Implement missing steps**: Use the BDD hints from the tester agent's
-   Phase 5 report to flesh out step definitions. Reuse existing steps
-   wherever possible.
-4. **Run the new BDD scenarios**: Run just the new feature file first to
-   confirm the scenarios pass.
-
-## Phase 8: Full Regression
-
-Invoke the `model-w-run-tests` skill (load it via the skill tool if not
-already loaded) and let it orchestrate the full QA pipeline -- static
-analysis + the entire test suite, including the BDD scenarios you just
-added.
-
-If failures appear that were introduced by your feature work, address them
-through that skill's normal flow (its fixer agents). Do NOT mark the
-feature done until every test passes.
-
-## Phase 9: Commit
-
-When QA is green, **ask the user whether to commit**:
-
-> "All tests pass and the feature is functionally complete. Should I
-> commit now?"
-
-If they say yes, defer to the `model-w-commit-push` skill, which handles
-the Linear-ID-aware commit message and pre-commit hygiene checks. Do NOT
-push automatically -- the commit skill enforces a separate explicit push
-instruction.
-
-## Context Curation Rules
-
-1. **Delegate by default.** Ticket fetching, planning, exploration,
-   touchpoint analysis, implementation, testing, and CSS fixing all go
-   through sub-agents. You handle user conversation, plan synthesis, and
-   decision-making on sub-agent reports. You write code yourself only
-   for trivial nudges (one- or two-line follow-ups the implementer
-   flagged).
-2. **Never fetch the raw Linear ticket yourself.** Project managers
-   pad tickets with noise. The `model-w-feature-ticket-filter` agent
-   is the **only** place where raw ticket content is handled — it
-   returns a delta-only spec that you forward to downstream agents.
-   Reading the raw ticket yourself defeats the entire filter mechanism
-   and drags noise back into every downstream prompt.
-3. **Never forward raw exploration output** between phases. Always distill
-   it into the structured artifacts the agents produce (Specification Pack,
-   Data-Flow Mapping, Touchpoint Report, Implementer Report, Test Data
-   Pack, Tester Report).
-4. **Sub-agents see only what they need.** The data-explorer for element X
-   does not need to know about elements Y and Z. The design-fixer does not
-   need the whole tester report -- it needs the specific CSS mismatch.
-   The implementer needs the confirmed plan + touchpoint report, not the
-   exploration transcripts that produced them.
-5. **Ask the user via the `question` tool**, never via free-form text. This
-   keeps confirmations auditable and structured.
-6. **Never skip the confirmations.** The filter-question confirmation
-   (Phase 0d), the data-flow confirmation (Phase 1b), the plan
-   confirmation (Phase 3), and the review handoff (Phase 6) are
-   mandatory checkpoints. Skipping them produces features the user did
-   not ask for.
-7. **Surprises trigger decisions, not silent fixes.** If the implementer
-   reports a surprise that contradicts the plan, loop back to the relevant
-   earlier phase (touchpoints or plan presentation) and re-confirm with
-   the user before re-implementing. Do not patch over surprises in the
-   orchestrator.
-8. **Never start a dev server.** That is the user's job. If servers are
-   down, stop and ask.
-9. **Never read `.env` or `.env.*`.** OpenCode blocks them. To learn what
-   configuration the project supports, point sub-agents at the framework's
-   declarative settings surface: `settings.py` for Django,
-   `.svelte-kit/ambient.d.ts` for SvelteKit, `next.config.*` for Next.js,
-   or `process.env.` / `os.environ` greps for generic projects. To use
-   an actual secret value during testing, ask the user via the `question`
-   tool rather than trying to read it.
+1. **Never fetch the raw Linear ticket.** The filter session holds it;
+   resume with questions instead.
+2. **Resume before redoing.** Filter Q&A, planner Round 2, tester
+   re-checks, BDD re-runs — all through `task_id` resumes.
+3. **Never forward raw sub-agent transcripts.** Pass the structured
+   artifacts: Specification Pack, Implementation Brief, Test Data Pack,
+   Selector Map.
+4. **Sub-agents see only what they need.** The BDD agent gets CHECKS +
+   Selector Map, not the whole session history.
+5. **Checkpoints are mandatory**: filter questions (0.4), plan sign-off
+   (1.3), user review (Phase 4), BDD Test Plan validation (Phase 5).
+   Use the `question` tool, never free-form text.
+6. **Surprises trigger decisions, not silent fixes.** Plan-shape
+   changes go back to the user before you diverge.
+7. **Never start a dev server.** Ask the user.
+8. **Never read `.env` or `.env.*`.** OpenCode blocks them. For config
+   keys, use the framework's declarative settings surface
+   (`settings.py`, `.svelte-kit/ambient.d.ts`, `next.config.*`, or
+   `process.env.` / `os.environ` greps). For secret values, ask the
+   user.
