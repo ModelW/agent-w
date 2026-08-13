@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2026-08-13
+
+### Features
+
+- **Feature Development Workflow (`model-w-feature`):** Introduce and streamline
+  a comprehensive 7-phase feature development workflow built around session
+  resumption ("resume, don't repeat"). Implementation is brought to root level
+  for interactive developer steering, accompanied by revamped sub-agents:
+    - `ticket-filter`: Rebuilt with surprise-versus-provenance filtering and
+      interactive Q&A on raw ticket context.
+    - `planner`: Consolidated data-explorer and touchpoints analysis with a
+      two-round brief drafting protocol.
+    - `tester`: Live HMR CSS convergence toward Figma designs and
+      accessibility-first Selector Map generation.
+    - `bdd`: Two-round BDD planning and scenario generation that extends
+      existing test suites cleanly.
+- **QA Pipeline & Testing Contracts (`model-w-run-tests`):** Introduce a
+  standardized Testing Contract enforcing fast parallel test execution,
+  quiet-on-success logging, explicit execution timeouts, and automatic
+  synchronization of `AGENTS.md` and QA skills upon successful test runs.
+- **Bootstrap Enhancements (`model-w-bootstrap`):** Update project
+  initialization to generate and verify Testing Contracts within QA skills and
+  project documentation.
+
 ## [0.9.0] - 2026-05-19
 
 ### Features
