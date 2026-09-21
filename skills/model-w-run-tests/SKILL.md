@@ -1,6 +1,6 @@
 ---
 name: model-w-run-tests
-description:
+description: >-
     MUST be loaded before running tests, linting, type-checking, or any QA
     pipeline. Orchestrates static analysis and test execution through sub-agents
     with an iterative fix loop that minimizes context usage.

@@ -1,6 +1,6 @@
 ---
 name: model-w-commit
-description:
+description: >-
     Stages and commits changes with Linear-aware messaging and conversation
     context.
 ---

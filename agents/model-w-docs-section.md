@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-section
-description:
+description: >-
     Handles one major section within a documentation perspective. Breaks it into
     subsections and delegates to subsection agents.
 permission:

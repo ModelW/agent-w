@@ -1,6 +1,6 @@
 ---
 name: model-w-bootstrap-explorer
-description:
+description: >-
     Analyzes project architecture, dependencies, and Model W versioning.
 ---
 

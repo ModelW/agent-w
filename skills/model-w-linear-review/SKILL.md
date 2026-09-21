@@ -1,6 +1,6 @@
 ---
 name: model-w-linear-ticket-review
-description:
+description: >-
     Review a Linear ticket specification from a direct Linear issue link and
     provide concise, constructive feedback about gaps, ambiguity, missing
     acceptance criteria, and missing key test scenarios.

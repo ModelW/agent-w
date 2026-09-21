@@ -1,6 +1,6 @@
 ---
 name: model-w-feature-bdd
-description:
+description: >-
     Writes the BDD coverage for one implemented feature in two rounds.
     Round 1 surveys the existing suite and proposes a Test Plan (goals,
     not steps) favoring extension of existing scenarios over new ones.

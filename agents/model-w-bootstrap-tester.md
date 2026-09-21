@@ -1,6 +1,6 @@
 ---
 name: model-w-bootstrap-tester
-description:
+description: >-
     Verifies generated skills and ensures strict Git hygiene for Model W
     projects.
 ---

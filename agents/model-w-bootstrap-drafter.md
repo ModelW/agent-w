@@ -1,6 +1,6 @@
 ---
 name: model-w-bootstrap-drafter
-description:
+description: >-
     Generates project-specific Model W management skills based on an Explorer
     report.
 ---

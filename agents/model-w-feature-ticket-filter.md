@@ -1,6 +1,6 @@
 ---
 name: model-w-feature-ticket-filter
-description:
+description: >-
     Fetches a Linear ticket and produces a noise-filtered rewrite that
     keeps only valid high-surprise requirements. Strips LLM-invented
     technical details, padding, and already-implemented requirements.

@@ -1,6 +1,6 @@
 ---
 name: model-w-qa-static
-description:
+description: >-
     Runs static analysis tools (formatter, linter, type checker) and fixes all
     issues it can. Reports what remains unresolved.
 ---

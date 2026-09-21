@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-generate
-description:
+description: >-
     Generates project-level documentation from scratch using Zensical. Produces
     a full perspective-based documentation tree via recursive sub-agents.
 license: WTFPL

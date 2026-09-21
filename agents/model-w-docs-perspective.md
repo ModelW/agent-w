@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-perspective
-description:
+description: >-
     Handles one documentation perspective (User, Admin, Tester, or Developer).
     Breaks it into sections and delegates to section agents.
 permission:

@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-orchestrator
-description:
+description: >-
     Top-level documentation orchestrator. Analyzes the project, determines
     which perspectives are needed, delegates to perspective agents, and runs
     final cleanup.

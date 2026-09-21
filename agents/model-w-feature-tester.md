@@ -1,6 +1,6 @@
 ---
 name: model-w-feature-tester
-description:
+description: >-
     Tests a freshly implemented feature against its specification via the
     Chrome DevTools MCP -- walks the acceptance criteria, iteratively
     converges the CSS toward the Figma design (live, via HMR), and

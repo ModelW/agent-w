@@ -1,0 +1,6 @@
+# Markdown prose (agents, skills, docs) is hand-formatted; prettier reflows
+# it non-idempotently with tabWidth 4.
+*.md
+doc/
+node_modules/
+package-lock.json

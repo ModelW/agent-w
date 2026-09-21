@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-subsection
-description:
+description: >-
     Handles one subsection within a documentation section. Breaks it into
     individual pages and delegates to page agents.
 permission:

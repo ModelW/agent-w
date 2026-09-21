@@ -1,6 +1,6 @@
 ---
 name: model-w-commit-push
-description:
+description: >-
     MANDATORY. MUST be used for ALL git commit and push operations. Orchestrates
     Model W git workflows with Linear ID support.
 license: WTFPL

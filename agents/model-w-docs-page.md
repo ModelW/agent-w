@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-page
-description:
+description: >-
     Handles one documentation page. Breaks it into page-sections (H2 blocks)
     and delegates each to a page-section agent.
 permission:

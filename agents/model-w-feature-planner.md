@@ -1,6 +1,6 @@
 ---
 name: model-w-feature-planner
-description:
+description: >-
     Plans a feature end-to-end in one pass -- decomposes it into elements
     and actions, traces data flow, identifies codebase touchpoints and
     blockers, and produces an Implementation Brief. Resumable: returns a

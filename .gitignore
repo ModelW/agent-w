@@ -34,3 +34,6 @@ issues.json
 analyze.js
 release_notes.md
 release_body.md
+
+# Docs virtualenv
+doc/.venv/

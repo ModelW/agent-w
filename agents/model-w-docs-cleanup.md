@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-cleanup
-description:
+description: >-
     Final cleanup pass across all documentation. Checks for duplicates,
     inconsistencies, broken links, and missing diagrams.
 ---

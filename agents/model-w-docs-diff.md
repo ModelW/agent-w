@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-diff
-description:
+description: >-
     Updates documentation for a single change set. Handles both inline
     docstrings and project-level doc pages affected by a specific set of code
     changes.

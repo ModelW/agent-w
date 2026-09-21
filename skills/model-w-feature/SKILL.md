@@ -1,6 +1,6 @@
 ---
 name: model-w-feature
-description:
+description: >-
     MUST be loaded whenever the user asks to implement, build, or work on a
     feature, ticket, story, or Linear issue (e.g. "implement LOG-73",
     "let's work on this ticket", "build this feature"). Orchestrates the

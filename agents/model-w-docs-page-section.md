@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-page-section
-description:
+description: >-
     Handles one page-section (H2 block) within a documentation page. Breaks it
     into H3 subsections and delegates each to a page-subsection writer.
 permission:

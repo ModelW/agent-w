@@ -1,6 +1,6 @@
 ---
 name: model-w-qa-test-fixer
-description:
+description: >-
     Investigates and fixes a specific group of test failures through static
     reasoning. Cannot run tests.
 ---

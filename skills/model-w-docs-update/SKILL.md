@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-update
-description:
+description: >-
     Incrementally updates project documentation based on git history. Walks
     commits since the last documentation update and spins sub-agents to update
     affected docs and docstrings.

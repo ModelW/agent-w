@@ -1,6 +1,6 @@
 ---
 name: model-w-docs-page-subsection
-description:
+description: >-
     Leaf writer agent. Writes one H3-level subsection of a documentation page
     with diagrams, code examples, and tables. Does not delegate further.
 ---

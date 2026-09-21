@@ -2,8 +2,11 @@
     "name": "@model-w/agent-w",
     "version": "0.10.0",
     "type": "module",
-    "main": "./src/index.js",
-    "exports": "./src/index.js",
+    "main": "./index.js",
+    "exports": {
+        ".": "./index.js",
+        "./package.json": "./package.json"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/ModelW/agent-w.git"
@@ -13,8 +16,11 @@
         "agent-w": "bin/cli.js"
     },
     "scripts": {
-        "test": "npm run test:plugin",
-        "test:plugin": "claude plugin validate .claude-plugin/plugin.json && claude plugin validate .claude-plugin/marketplace.json"
+        "test": "npm run test:unit && npm run test:plugin && npm run test:format",
+        "test:unit": "node --test test/*.test.js",
+        "test:plugin": "claude plugin validate .claude-plugin/plugin.json && claude plugin validate .claude-plugin/marketplace.json",
+        "test:format": "prettier --check .",
+        "format": "prettier --write ."
     },
     "keywords": [
         "gemini",
@@ -30,11 +36,19 @@
     "license": "WTFPL",
     "opencode": {
         "extensions": [
-            "./src/index.js"
+            "./index.js"
         ]
     },
     "devDependencies": {
         "@opencode-ai/plugin": "^1.4.6",
+        "@opencode/plugin": "^2.0.11",
         "prettier": "^3.8.1"
-    }
+    },
+    "files": [
+        "index.js",
+        "src/",
+        "skills/",
+        "agents/",
+        "bin/"
+    ]
 }

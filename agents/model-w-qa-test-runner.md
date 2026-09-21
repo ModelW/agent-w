@@ -1,6 +1,6 @@
 ---
 name: model-w-qa-test-runner
-description:
+description: >-
     Runs the test suite as fast as possible (parallel flags, quiet
     output, explicit timeouts) and produces a structured failure report.
     Does not fix anything. Pure observer.

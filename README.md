@@ -79,10 +79,27 @@ Agent W works as a native OpenCode plugin. When installed, it automatically
 registers its skill library, making the Model W bootstrapping skills available
 to the LLM without any project-level setup.
 
+The plugin supports both OpenCode v1 (>= 1.18.29) and OpenCode v2 from the same
+package.
+
 To add Agent W to your OpenCode environment:
 
 ```bash
+# OpenCode v2
+opencode plugin add @model-w/agent-w
+
+# OpenCode v1
 opencode plugin @model-w/agent-w
+```
+
+Or reference it from your `opencode.json(c)`:
+
+```jsonc
+// OpenCode v2
+{ "plugins": ["@model-w/agent-w"] }
+
+// OpenCode v1
+{ "plugin": ["@model-w/agent-w"] }
 ```
 
 Once installed, you can simply ask the agent to bootstrap your project:

@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Features
+
+- **OpenCode v2 Support:** Migrate the plugin to the OpenCode v2 plugin API
+  while keeping v1 (>= 1.18.29) working from the same package. The default
+  export now exposes a stable plugin `id` (`model-w.agent-w`), a v1 `server()`
+  entrypoint and a v2 `setup(ctx)` entrypoint. On v2, skills are registered
+  through `ctx.skill.transform` and agents through `ctx.agent.transform`, with
+  legacy `permission` frontmatter maps converted to v2 permission rules (`task`
+  -> `subagent`, `bash` -> `shell`, `write`/`patch` -> `edit`).
+- **Root entrypoint:** Add `index.js` at the package root so OpenCode v2 can
+  load the plugin from a local directory path in addition to the npm package.
+
+### Fixes
+
+- **Frontmatter:** Multi-line `description` fields in agents and skills now use
+  an explicit YAML block scalar (`>-`). The previous implicit multi-line form was
+  invalid YAML and made Claude Code drop the whole frontmatter.
+- **Tests:** `npm test` now runs Node unit tests for both plugin entrypoints,
+  the Claude Code manifest validation and a Prettier check; all pass. Markdown
+  prose is excluded from Prettier (non-idempotent reflow) via `.prettierignore`.
+
+
 ## [0.10.0] - 2026-08-13
 
 ### Features
